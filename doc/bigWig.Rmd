@@ -1,0 +1,86 @@
+---
+title: "bigWig"
+author: Luther Vucic
+date: 09/15/2019
+output: rmarkdown::html_vignette
+
+vignette: >
+  %\VignetteIndexEntry{bigWig}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+# Introduction
+bigWig is a R package that has utility function for analyzing and manipulating bigWig files.
+
+# Setup
+
+## Install package
+
+Since bigWig is not available on CRAN, we can not use the basic `install.packages('bigWig')`. However, there are several ways to install packages. Here I will explain 2 of them.
+
+### From Github
+
+
+### From local directory
+
+# Usage
+
+After installation like any other package bigwig needs to be loaded with
+```{r setup}
+library(bigWig)
+```
+For these examples, we will use PRO-seq data from [GSE126919_RAW](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE126919).
+
+Download the tar ball and unpack it in a local directory of your choice. Then in R make sure that you define the directory and filename.
+```{r}
+#directory where data is stored
+dtDir='/home/directory'
+# specific bigWig file being used
+dtFn='GSM3618124_HEK293T_TIR1_Cl4_3hrDMSO_rep1_minus_body_0-mer.bigWig'
+```
+```{r echo=FALSE}
+#directory where data is stored
+dtDir='/home/lutus/_projects/_dev/guertin/bigWig/workflow/_data/GSE126919_RAW/'
+# specific bigWig file being used
+dtFn='GSM3618124_HEK293T_TIR1_Cl4_3hrDMSO_rep1_minus_body_0-mer.bigWig'
+```
+
+## bigWig utilities
+
+### load.bigWig
+`load.bigWig` creates a bigWig object in `R`. This object contains the entire bigWig file. The only parameter required for this is a string of the location and filename.
+
+
+```{r}
+bw=load.bigWig(paste0(dtDir, dtFn))
+```
+
+### unload.bigWig
+To destroy the object and remove it from memory
+```{r}
+unload.bigWig(bw)
+```
+
+### query.bigWig
+
+```{r echo=FALSE}
+bw=load.bigWig(paste0(dtDir, dtFn))
+
+```
+Prints query
+```{r}
+query.bigWig(bw, chrom='chr1', start=1, end=20000)
+```
+Set query to a variable for storage
+```{r}
+bwQ=query.bigWig(bw, chrom='chr1', start=1, end=20000)
+bwQ[3]
+```
+### print.bigWig

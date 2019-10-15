@@ -27,8 +27,29 @@ Since bigWig is not available on CRAN, we can not use the basic `install.package
 
 ### From Github
 
+The most up to date version of the `bigWig` pkg is located at [bigWig](https://github.com/andrelmartins/bigWig). Using `devtools`, you can download and install `bigWig` from github directly.
+
+```{r eval=FALSE}
+#install devtools if necessary
+install.packages("devtools")
+library('devtools')
+#location of bigWig package and subfolder
+pkgLoc='andrelmartins/bigWig'
+subFld='bigWig'
+devtools::install_github(pkgLoc, subdir=subFld)
+```
 
 ### From local directory
+
+If you don't have an internet connection or don't use github, you can build from the sources file.
+```{r eval=FALSE}
+#install devtools if necessary
+install.packages("devtools")
+library('devtools')
+#Set the working directory to the directory where the source files are located
+setwd('~/Dir')
+build()
+```
 
 # Usage
 
@@ -54,8 +75,20 @@ dtFn='GSM3618124_HEK293T_TIR1_Cl4_3hrDMSO_rep1_minus_body_0-mer.bigWig'
 
 ## bigWig utilities
 
+These a functions that load, unload, query and print the information that is in each bigWig.
+
 ### load.bigWig
-`load.bigWig` creates a bigWig object in `R`. This object contains the entire bigWig file. The only parameter required for this is a string of the location and filename.
+
+```{r eval=FALSE}
+load.bigWig(filename, udcDir = NULL)
+```
+* arguments
+
+  + `filename` [required] is a string, which is either the the local file directory or URL.
+
+  + `udcDir` is a string which is the location for storing cached copies of remote files locally, while in use. Theseare destroyed when you unload the bigWig. If left as the default `udcDir = NULL`, then it uses `/tmp/udcCache`.
+
+`load.bigWig` creates a list in `R`. This list contains relevant informasyion about the bigWig file and serves as a pointer to the underlying C object of the entire bigWig file. The only parameter required for this is a string of the location and filename.
 
 
 ```{r}
@@ -63,24 +96,311 @@ bw=load.bigWig(paste0(dtDir, dtFn))
 ```
 
 ### unload.bigWig
-To destroy the object and remove it from memory
+
+```{r eval=FALSE}
+unload.bigWig(bw)
+```
+* arguements
+  + `bw` is the `R` pointer created in `load.bigWig`
+
+Use `unload.bigWig(bw)` to destroy the C object and remove it from memory. This does not clear the `R` list. To do that use `rm()` or `remove()`
+
+
 ```{r}
 unload.bigWig(bw)
+ls()
+remove(bw)
+ls()
 ```
 
 ### query.bigWig
+
+```{r eval = FALSE}
+query.bigWig(bw, chrom, start, end, clip = TRUE)
+```
+* arguments
+  + `bw` is the `R` pointer created in `load.bigWig`
+  + `chrom` is a string referring to what chromosome is referenced
+  + `start` is an integer value designation the starting position
+  + `end` is an integer value designation the ending position
+  + `clip` is a logical value; if TRUE bigWig regions are clipped to the query interval.
+
 
 ```{r echo=FALSE}
 bw=load.bigWig(paste0(dtDir, dtFn))
 
 ```
-Prints query
+
+`query.bigWig` allows you to search the bigWig files for specific chromosomes (`chrom='chr1'`, a string representative of the desired chromosome) within a defined window (`start=1, end = 12000` both are integers and end is inclusive meaning it searches up to and including `end`). It then prints query results to the command line.
 ```{r}
-query.bigWig(bw, chrom='chr1', start=1, end=20000)
+query.bigWig(bw, chrom='chr1', start=1, end=12000)
 ```
-Set query to a variable for storage
+You can set the query to a variable for storage
 ```{r}
 bwQ=query.bigWig(bw, chrom='chr1', start=1, end=20000)
 bwQ[3]
 ```
+
+Then access the array like any other indexed array. This returns the entire row.
+```{r}
+bwQ[1,]
+```
+This returns the specific row and column.
+```{r}
+bwQ[1,2]
+```
+It can be accesed by keyword too.
+```{r}
+bwQ[1,'start']
+```
+
+`clip` need to create instance
+
+
 ### print.bigWig
+`print.bigWig(bw)` is used to print all of the attributes contained within the object.
+
+```{r eval=FALSE}
+print.bigWig(bw)
+```
+* arguments
+  + `bw` is the `R` pointer created in `load.bigWig`
+
+```{r echo=FALSE}
+cat("bigWig\n")
+cat(" version:", bw$version, "\n")
+cat(" isCompressed", bw$isCompressed, "\n")
+cat(" isSwapped", bw$isSwapped, "\n")
+cat(" primaryDataSize:", prettyNum(bw$primaryDataSize, big.mark=','), "\n")
+cat(" primaryIndexSize:", prettyNum(bw$primaryIndexSize, big.mark=','), "\n")
+cat(" zoomLevels:", bw$zoomLevels, "\n")
+cat(" chromCount:", length(bw$chroms), "\n")
+for (i in 1:5)
+  cat("    ", bw$chroms[i], bw$chromSizes[i], "\n")
+cat("    ", "...", "\n")
+z=length(bw$chroms)-5
+for (i in z:length(bw$chroms))
+  cat("    ", bw$chroms[i], bw$chromSizes[i], "\n")
+
+cat(" basesCovered:", prettyNum(bw$basesCovered, big.mark=','), "\n")
+cat(" mean: ", bw$mean, "\n")
+cat(" min: ", bw$min, "\n")
+cat(" max: ", bw$max, "\n")
+cat(" std: ", bw$std, "\n")
+```
+
+
+## bpQuery.bigwig
+This set of functions operates on counts of base pairs
+
+### region.bpQuery.bigwig
+
+```{r eval=FALSE}
+region.bpQuery.bigWig(bw, chrom, start, end,
+                       op = "sum", abs.value = FALSE
+                      bwMap = NULL)
+```
+* arguments
+  + `bw` is the `R` pointer created in `load.bigWig`
+  + `chrom` is a string referring to what chromosome is referenced
+  + `start` is an integer value designation the starting position
+  + `end` is an integer value designation the ending position
+  + `op` is a string representing the operation to perform on the step.
+    - `sum` adds all the counts
+    - `avg` averages the counts
+    - `min` finds the smallest count
+    - `max` finds the largest count
+  + `abs.value` is a logical argument which determines if the absolute value of the input is performed before the `op`.
+
+`region.bpQuery.bigWig` is used for counting operations on a selected chromosome and range. This allows you to find out basic information on a specific query.
+Starting with a specific query,
+```{r}
+query.bigWig(bw, chrom='chr2', start=1, end=30000)
+
+```
+Operations
+To find how many instances there are where there is a 'chr2' in the bigWig
+```{r}
+region.bpQuery.bigWig(bw,chrom='chr2',start=1, end=200000, op='sum')
+```
+If you want to find the highest number of instances of chr2
+```{r}
+region.bpQuery.bigWig(bw,chrom='chr2',start=1, end=200000, op='max')
+```
+To find the lowest number of instances
+```{r}
+region.bpQuery.bigWig(bw,chrom='chr2',start=1, end=200000, op='min')
+```
+To find the average
+```{r}
+region.bpQuery.bigWig(bw,chrom='chr2',start=1, end=200000, op='avg')
+```
+sometimes the bigWig will have negative values. To keep these values in the counts the `abs.value=TRUE` option can be used.
+
+### bed.region.bpQuery.bigwig
+
+This function is similar to `region.bpQuery.bigWig` except that when defining the areas we want to examine is defined in a bed file rather than `chrom`, `start`, and `end`.
+
+The  source of the bed file can be something created by hand or previous identified regions from other experiments. The basics of the bed is that it's in a R data frame.
+
+
+```{r}
+bed=data.frame('chr1',10496,10497)
+#set column headers
+colnames(bed)=c('chrom','start', 'end')
+```
+Now this is for a single factor in R. If you ever want to add different factors you'll need to add levels
+```{r}
+levels(bed$chrom)=c('chr1', 'chr2')
+```
+Take a look at how the data.frame is structured
+```{r}
+dim(bed)
+attributes(bed)
+bed
+```
+`dim` returns the size of the matrix [1 row, 3 columns]. while `attributes` returns information on column names, row names and class type.
+
+You can take this bed file and run it through the bigWig file to see what parts overlap
+
+```{r}
+# note: If you leave out op='', it will default to op='sum'
+bed.region.bpQuery.bigWig(bw, bed)
+```
+
+Now adding a few other areas to the data frame
+```{r}
+bed=rbind(bed, c('chr2', 10500,10501))
+```
+In the original query, this region is occupied by a `chr1` and since the bed file refers to a `chr2` the sum should be the same because there is no overlap.Then if you rerun
+```{r}
+bed.region.bpQuery.bigWig(bw, bed)
+```
+We see that the then returned values are 1 and 0. This is because the first row of the bed file overlaps the bigWig, but the second row does not overlap.
+
+Now adding a third row to the bed file that will overlap a larger range of the bigWig and rerun
+```{r}
+bed2=rbind(bed, c('chr1', 13000,14001))
+bed.region.bpQuery.bigWig(bw, bed2)
+```
+
+The returned values are the sums of the counts in those regions.
+
+### step.bpQuery.bigWig()
+
+```{r eval=FALSE}
+step.bpQuery.bigWig(bw, chrom, start, end, step,
+                    strand = NA, op = "sum", abs.value = FALSE, gap.value = 0,
+                    bwMap = NULL, with.attributes = TRUE)
+```
+* arguments
+  + `bw` is the `R` pointer created in `load.bigWig`
+  + `chrom` is a string referring to what chromosome is referenced
+  + `start` is an integer value designation the starting position
+  + `end` is an integer value designation the ending position
+  + `op` is a string representing the operation to perform on the step.
+    - `sum` adds all the counts
+    - `avg` averages the counts
+    - `min` finds the smallest count
+    - `max` finds the largest count
+  + `abs.value` is a logical argument which determines if the absolute value of the input is performed before the `op`.
+  + `gap.value` is an integer value that replaces areas that have no overlaps
+  + `with.attributes` is a logical argument that determines if the results are returned annotated with their source components and/or step size.
+
+The Step function will run through the range provide breaking it up into equal size steps as defined by `step =`. The key here is that the length of the range [`end`-`start`] has to be a multiple of the step. For example if `end=21` and `start=1`, The length of the range is 20. This allows for `step = [1,2,4,5,10,20]`. The return is the value of the operation over that step. So if `step =1` and `op = 'min'`, then the return would be 20 minimums.
+
+Now if `step = 5` and `op = 'max'`, the return will be a 4 element array of the maximum value in the step.
+
+Let's take a look over a 20000 interval `start=1`, `end=20001` and a `step=1000`.
+```{r}
+step.bpQuery.bigWig(bw,chrom='chr1',start=1, end=20001, op='sum', step=1000)
+```
+The result is a 20 element array of the sum of all the counts in the interval. Notice that the steps that have no counts are zero. If we needed to fill these values in with a specific number like 10, we use `gap.value=10`
+```{r}
+step.bpQuery.bigWig(bw,chrom='chr1',start=1, end=20001, op='sum', step=10000, gap.value=10)
+```
+
+### bed.step.bpQuery.bigWig()
+
+```{r eval=FALSE}
+step.bpQuery.bigWig(bw, chrom, start, end, step,
+                    strand = NA, op = "sum", abs.value = FALSE, gap.value = 0,
+                    bwMap = NULL, with.attributes = TRUE)
+```
+* arguments
+  + `bw` is the `R` pointer created in `load.bigWig`
+  + `bed` is a dataframe structured like a bed file with columns for `chrom`, `start` and `end`
+  + `chrom` is a string referring to what chromosome is referenced
+  + `start` is an integer value designation the starting position
+  + `end` is an integer value designation the ending position
+  + `op` is a string representing the operation to perform on the step.
+    - `sum` adds all the counts
+    - `avg` averages the counts
+    - `min` finds the smallest count
+    - `max` finds the largest count
+  + `abs.value` is a logical argument which determines if the absolute value of the input is performed before the `op`.
+  + `gap.value` is an integer value that replaces areas that have no overlaps
+  + `with.attributes` is a logical argument that determines if the results are returned annotated with their source components and/or step size.
+This is similar to `bed.region.bigWig()`, where you can add a bed of regions that you are interested in.
+
+
+### bed6s
+
+`bed.region.bpQuery.bigWig()` and `bed.step.bpQuery.bigWig()` have counterparts that can take a bed6 file. The bed6 file is similar to a bed file except it has 3 more columns of data.
+
+Remember the standard bed file has `chrom`, `start` and `end`. The bed6 adds `name`, `score`, `strand` columns to its structure. For these functions, we only need the added `strand` column. However this column needs to be in the 6th position. Meaning even though `name` and `score` columns exist in the dataframe, they can be populated with nulls. You could populate it with identifying information, but the function essentially ignores them. The `strand` column requires either a `+` or `-` to denote the plus or minus strand.
+
+Here is an example
+```{r eval=FALSE}
+bed6=data.frame('chr1',1,100000,'','','+')
+colnames=c('chrom', 'start', 'end', 'name', 'score', 'strand')
+```
+
+This introduces the biological concept of plus and minus strands. This refers to the situation where the biological experiment returns the sense [plus strand] and it's complimentary RNA strand, antisense [minus strand]
+
+```{r eval=FALSE}
+bed6.region.bpQuery.bigWig(bw.plus, bw.minus, bed6,
+                           op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL)
+```
+* arguments
+  + `bw.plus` is the `R` pointer created in `load.bigWig` and refers to the plus strand
+  + `bw.minus` is the `R` pointer created in `load.bigWig` and refers to the minus strand
+  + `chrom` is a string referring to what chromosome is referenced
+  + `start` is an integer value designation the starting position
+  + `end` is an integer value designation the ending position
+  + `op` is a string representing the operation to perform on the step.
+    - `sum` adds all the counts
+    - `avg` averages the counts
+    - `min` finds the smallest count
+    - `max` finds the largest count
+  + `abs.value` is a logical argument which determines if the absolute value of the input is performed before the `op`.
+  + `gap.value` is an integer value that replaces areas that have no overlaps
+  + `with.attributes` is a logical argument that determines if the results are returned annotated with their source components and/or step size.
+
+Let's look at an example.
+
+```{r eval=FALSE}
+bw.plus = load.bigWig(paste0(dtDir, dtFn))
+```
+
+```{r eval=FALSE}
+
+bed6.step.bpQuery.bigWig(bw.plus, bw.minus, bed6, step,
+                         op = "sum", abs.value = FALSE, gap.value = 0,
+                         bwMap = NULL, with.attributes = TRUE, as.matrix = FALSE,
+                         follow.strand = FALSE)
+```
+* arguments
+  + `bw.plus` is the `R` pointer created in `load.bigWig` and refers to the plus strand
+  + `bw.minus` is the `R` pointer created in `load.bigWig` and refers to the minus strand
+  + `chrom` is a string referring to what chromosome is referenced
+  + `start` is an integer value designation the starting position
+  + `end` is an integer value designation the ending position
+  + `op` is a string representing the operation to perform on the step.
+    - `sum` adds all the counts
+    - `avg` averages the counts
+    - `min` finds the smallest count
+    - `max` finds the largest count
+  + `abs.value` is a logical argument which determines if the absolute value of the input is performed before the `op`.
+  + `gap.value` is an integer value that replaces areas that have no overlaps
+  + `with.attributes` is a logical argument that determines if the results are returned annotated with their source components and/or step size.

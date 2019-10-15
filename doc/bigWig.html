@@ -321,573 +321,373 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <p>Since bigWig is not available on CRAN, we can not use the basic <code>install.packages(&#39;bigWig&#39;)</code>. However, there are several ways to install packages. Here I will explain 2 of them.</p>
 <div id="from-github" class="section level3">
 <h3>From Github</h3>
+<p>The most up to date version of the <code>bigWig</code> pkg is located at <a href="https://github.com/andrelmartins/bigWig">bigWig</a>. Using <code>devtools</code>, you can download and install <code>bigWig</code> from github directly.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co">#install devtools if necessary</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="kw">install.packages</span>(<span class="st">&quot;devtools&quot;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="kw">library</span>(<span class="st">&#39;devtools&#39;</span>)</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co">#location of bigWig package and subfolder</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a>pkgLoc=<span class="st">&#39;andrelmartins/bigWig&#39;</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a>subFld=<span class="st">&#39;bigWig&#39;</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a>devtools<span class="op">::</span><span class="kw">install_github</span>(pkgLoc, <span class="dt">subdir=</span>subFld)</span></code></pre></div>
 </div>
 <div id="from-local-directory" class="section level3">
 <h3>From local directory</h3>
+<p>If you don’t have an internet connection or don’t use github, you can build from the sources file.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co">#install devtools if necessary</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="kw">install.packages</span>(<span class="st">&quot;devtools&quot;</span>)</span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="kw">library</span>(<span class="st">&#39;devtools&#39;</span>)</span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="co">#Set the working directory to the directory where the source files are located</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="kw">setwd</span>(<span class="st">&#39;~/Dir&#39;</span>)</span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="kw">build</span>()</span></code></pre></div>
 </div>
 </div>
 </div>
 <div id="usage" class="section level1">
 <h1>Usage</h1>
 <p>After installation like any other package bigwig needs to be loaded with</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(bigWig)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">library</span>(bigWig)</span></code></pre></div>
 <p>For these examples, we will use PRO-seq data from <a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE126919">GSE126919_RAW</a>.</p>
 <p>Download the tar ball and unpack it in a local directory of your choice. Then in R make sure that you define the directory and filename.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co">#directory where data is stored</span></span>
-<span id="cb2-2"><a href="#cb2-2"></a>dtDir=<span class="st">&#39;/home/directory&#39;</span></span>
-<span id="cb2-3"><a href="#cb2-3"></a><span class="co"># specific bigWig file being used</span></span>
-<span id="cb2-4"><a href="#cb2-4"></a>dtFn=<span class="st">&#39;GSM3618124_HEK293T_TIR1_Cl4_3hrDMSO_rep1_minus_body_0-mer.bigWig&#39;</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="co">#directory where data is stored</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a>dtDir=<span class="st">&#39;/home/directory&#39;</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a><span class="co"># specific bigWig file being used</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a>dtFn=<span class="st">&#39;GSM3618124_HEK293T_TIR1_Cl4_3hrDMSO_rep1_minus_body_0-mer.bigWig&#39;</span></span></code></pre></div>
 <div id="bigwig-utilities" class="section level2">
 <h2>bigWig utilities</h2>
+<p>These a functions that load, unload, query and print the information that is in each bigWig.</p>
 <div id="load.bigwig" class="section level3">
 <h3>load.bigWig</h3>
-<p><code>load.bigWig</code> creates a bigWig object in <code>R</code>. This object contains the entire bigWig file. The only parameter required for this is a string of the location and filename.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>bw=<span class="kw">load.bigWig</span>(<span class="kw">paste0</span>(dtDir, dtFn))</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">load.bigWig</span>(filename, <span class="dt">udcDir =</span> <span class="ot">NULL</span>)</span></code></pre></div>
+<ul>
+<li><p>arguments</p>
+<ul>
+<li><p><code>filename</code> [required] is a string, which is either the the local file directory or URL.</p></li>
+<li><p><code>udcDir</code> is a string which is the location for storing cached copies of remote files locally, while in use. Theseare destroyed when you unload the bigWig. If left as the default <code>udcDir = NULL</code>, then it uses <code>/tmp/udcCache</code>.</p></li>
+</ul></li>
+</ul>
+<p><code>load.bigWig</code> creates a list in <code>R</code>. This list contains relevant informasyion about the bigWig file and serves as a pointer to the underlying C object of the entire bigWig file. The only parameter required for this is a string of the location and filename.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>bw=<span class="kw">load.bigWig</span>(<span class="kw">paste0</span>(dtDir, dtFn))</span></code></pre></div>
 </div>
 <div id="unload.bigwig" class="section level3">
 <h3>unload.bigWig</h3>
-<p>Use <code>unload.bigWig(bw)</code> to destroy the object and remove it from memory</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">unload.bigWig</span>(bw)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">unload.bigWig</span>(bw)</span></code></pre></div>
+<ul>
+<li>arguements
+<ul>
+<li><code>bw</code> is the <code>R</code> pointer created in <code>load.bigWig</code></li>
+</ul></li>
+</ul>
+<p>Use <code>unload.bigWig(bw)</code> to destroy the C object and remove it from memory. This does not clear the <code>R</code> list. To do that use <code>rm()</code> or <code>remove()</code></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">unload.bigWig</span>(bw)</span>
+<span id="cb8-2"><a href="#cb8-2"></a><span class="kw">ls</span>()</span>
+<span id="cb8-3"><a href="#cb8-3"></a><span class="co">#&gt; [1] &quot;bw&quot;    &quot;dtDir&quot; &quot;dtFn&quot;</span></span>
+<span id="cb8-4"><a href="#cb8-4"></a><span class="kw">remove</span>(bw)</span>
+<span id="cb8-5"><a href="#cb8-5"></a><span class="kw">ls</span>()</span>
+<span id="cb8-6"><a href="#cb8-6"></a><span class="co">#&gt; [1] &quot;dtDir&quot; &quot;dtFn&quot;</span></span></code></pre></div>
 </div>
 <div id="query.bigwig" class="section level3">
 <h3>query.bigWig</h3>
-<p><code>query.bigWig</code> allows you to search the bigWig files for specific chromosomes (<code>chome=&#39;chr1&#39;</code>, a string representative of the desired chromosome) within a defined window (<code>start=1, end = 10000</code> both are integers and end is inclusive meaing it searches upto and including <code>end</code>). It then prints query results to the command line.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">query.bigWig</span>(bw, <span class="dt">chrom=</span><span class="st">&#39;chr1&#39;</span>, <span class="dt">start=</span><span class="dv">1</span>, <span class="dt">end=</span><span class="dv">20000</span>)</span>
-<span id="cb5-2"><a href="#cb5-2"></a><span class="co">#&gt;       start   end value</span></span>
-<span id="cb5-3"><a href="#cb5-3"></a><span class="co">#&gt;  [1,] 10496 10497     1</span></span>
-<span id="cb5-4"><a href="#cb5-4"></a><span class="co">#&gt;  [2,] 10500 10501     1</span></span>
-<span id="cb5-5"><a href="#cb5-5"></a><span class="co">#&gt;  [3,] 10518 10519     1</span></span>
-<span id="cb5-6"><a href="#cb5-6"></a><span class="co">#&gt;  [4,] 10521 10522     2</span></span>
-<span id="cb5-7"><a href="#cb5-7"></a><span class="co">#&gt;  [5,] 10527 10528     1</span></span>
-<span id="cb5-8"><a href="#cb5-8"></a><span class="co">#&gt;  [6,] 10535 10536     1</span></span>
-<span id="cb5-9"><a href="#cb5-9"></a><span class="co">#&gt;  [7,] 10541 10542     1</span></span>
-<span id="cb5-10"><a href="#cb5-10"></a><span class="co">#&gt;  [8,] 10554 10555     1</span></span>
-<span id="cb5-11"><a href="#cb5-11"></a><span class="co">#&gt;  [9,] 10933 10934     1</span></span>
-<span id="cb5-12"><a href="#cb5-12"></a><span class="co">#&gt; [10,] 11081 11082     2</span></span>
-<span id="cb5-13"><a href="#cb5-13"></a><span class="co">#&gt; [11,] 11165 11166     1</span></span>
-<span id="cb5-14"><a href="#cb5-14"></a><span class="co">#&gt; [12,] 11456 11457     1</span></span>
-<span id="cb5-15"><a href="#cb5-15"></a><span class="co">#&gt; [13,] 11584 11585     1</span></span>
-<span id="cb5-16"><a href="#cb5-16"></a><span class="co">#&gt; [14,] 12008 12009     1</span></span>
-<span id="cb5-17"><a href="#cb5-17"></a><span class="co">#&gt; [15,] 12223 12224     1</span></span>
-<span id="cb5-18"><a href="#cb5-18"></a><span class="co">#&gt; [16,] 12776 12777     1</span></span>
-<span id="cb5-19"><a href="#cb5-19"></a><span class="co">#&gt; [17,] 12784 12785     1</span></span>
-<span id="cb5-20"><a href="#cb5-20"></a><span class="co">#&gt; [18,] 12793 12794     1</span></span>
-<span id="cb5-21"><a href="#cb5-21"></a><span class="co">#&gt; [19,] 12802 12803     1</span></span>
-<span id="cb5-22"><a href="#cb5-22"></a><span class="co">#&gt; [20,] 12886 12887     1</span></span>
-<span id="cb5-23"><a href="#cb5-23"></a><span class="co">#&gt; [21,] 12887 12888     1</span></span>
-<span id="cb5-24"><a href="#cb5-24"></a><span class="co">#&gt; [22,] 12890 12891     1</span></span>
-<span id="cb5-25"><a href="#cb5-25"></a><span class="co">#&gt; [23,] 12892 12893     1</span></span>
-<span id="cb5-26"><a href="#cb5-26"></a><span class="co">#&gt; [24,] 12968 12969     1</span></span>
-<span id="cb5-27"><a href="#cb5-27"></a><span class="co">#&gt; [25,] 13121 13122     1</span></span>
-<span id="cb5-28"><a href="#cb5-28"></a><span class="co">#&gt; [26,] 13143 13144     1</span></span>
-<span id="cb5-29"><a href="#cb5-29"></a><span class="co">#&gt; [27,] 13351 13352     1</span></span>
-<span id="cb5-30"><a href="#cb5-30"></a><span class="co">#&gt; [28,] 13353 13354     1</span></span>
-<span id="cb5-31"><a href="#cb5-31"></a><span class="co">#&gt; [29,] 13507 13508     2</span></span>
-<span id="cb5-32"><a href="#cb5-32"></a><span class="co">#&gt; [30,] 13508 13509     1</span></span>
-<span id="cb5-33"><a href="#cb5-33"></a><span class="co">#&gt; [31,] 13681 13682     1</span></span>
-<span id="cb5-34"><a href="#cb5-34"></a><span class="co">#&gt; [32,] 13682 13683     1</span></span>
-<span id="cb5-35"><a href="#cb5-35"></a><span class="co">#&gt; [33,] 13752 13753     1</span></span>
-<span id="cb5-36"><a href="#cb5-36"></a><span class="co">#&gt; [34,] 13764 13765     1</span></span>
-<span id="cb5-37"><a href="#cb5-37"></a><span class="co">#&gt; [35,] 14937 14938     1</span></span>
-<span id="cb5-38"><a href="#cb5-38"></a><span class="co">#&gt; [36,] 15944 15945     1</span></span>
-<span id="cb5-39"><a href="#cb5-39"></a><span class="co">#&gt; [37,] 16955 16956     1</span></span>
-<span id="cb5-40"><a href="#cb5-40"></a><span class="co">#&gt; [38,] 16974 16975     1</span></span>
-<span id="cb5-41"><a href="#cb5-41"></a><span class="co">#&gt; [39,] 18030 18031     1</span></span>
-<span id="cb5-42"><a href="#cb5-42"></a><span class="co">#&gt; [40,] 18057 18058     1</span></span>
-<span id="cb5-43"><a href="#cb5-43"></a><span class="co">#&gt; [41,] 18853 18854     1</span></span>
-<span id="cb5-44"><a href="#cb5-44"></a><span class="co">#&gt; [42,] 18858 18859     1</span></span>
-<span id="cb5-45"><a href="#cb5-45"></a><span class="co">#&gt; [43,] 19289 19290     1</span></span>
-<span id="cb5-46"><a href="#cb5-46"></a><span class="co">#&gt; [44,] 19879 19880     1</span></span>
-<span id="cb5-47"><a href="#cb5-47"></a><span class="co">#&gt; [45,] 19896 19897     1</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">query.bigWig</span>(bw, chrom, start, end, <span class="dt">clip =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
+<ul>
+<li>arguments
+<ul>
+<li><code>bw</code> is the <code>R</code> pointer created in <code>load.bigWig</code></li>
+<li><code>chrom</code> is a string referring to what chromosome is referenced</li>
+<li><code>start</code> is an integer value designation the starting position</li>
+<li><code>end</code> is an integer value designation the ending position</li>
+<li><code>clip</code> is a logical value; if TRUE bigWig regions are clipped to the query interval.</li>
+</ul></li>
+</ul>
+<p><code>query.bigWig</code> allows you to search the bigWig files for specific chromosomes (<code>chrom=&#39;chr1&#39;</code>, a string representative of the desired chromosome) within a defined window (<code>start=1, end = 12000</code> both are integers and end is inclusive meaning it searches up to and including <code>end</code>). It then prints query results to the command line.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw">query.bigWig</span>(bw, <span class="dt">chrom=</span><span class="st">&#39;chr1&#39;</span>, <span class="dt">start=</span><span class="dv">1</span>, <span class="dt">end=</span><span class="dv">12000</span>)</span>
+<span id="cb10-2"><a href="#cb10-2"></a><span class="co">#&gt;       start   end value</span></span>
+<span id="cb10-3"><a href="#cb10-3"></a><span class="co">#&gt;  [1,] 10496 10497     1</span></span>
+<span id="cb10-4"><a href="#cb10-4"></a><span class="co">#&gt;  [2,] 10500 10501     1</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a><span class="co">#&gt;  [3,] 10518 10519     1</span></span>
+<span id="cb10-6"><a href="#cb10-6"></a><span class="co">#&gt;  [4,] 10521 10522     2</span></span>
+<span id="cb10-7"><a href="#cb10-7"></a><span class="co">#&gt;  [5,] 10527 10528     1</span></span>
+<span id="cb10-8"><a href="#cb10-8"></a><span class="co">#&gt;  [6,] 10535 10536     1</span></span>
+<span id="cb10-9"><a href="#cb10-9"></a><span class="co">#&gt;  [7,] 10541 10542     1</span></span>
+<span id="cb10-10"><a href="#cb10-10"></a><span class="co">#&gt;  [8,] 10554 10555     1</span></span>
+<span id="cb10-11"><a href="#cb10-11"></a><span class="co">#&gt;  [9,] 10933 10934     1</span></span>
+<span id="cb10-12"><a href="#cb10-12"></a><span class="co">#&gt; [10,] 11081 11082     2</span></span>
+<span id="cb10-13"><a href="#cb10-13"></a><span class="co">#&gt; [11,] 11165 11166     1</span></span>
+<span id="cb10-14"><a href="#cb10-14"></a><span class="co">#&gt; [12,] 11456 11457     1</span></span>
+<span id="cb10-15"><a href="#cb10-15"></a><span class="co">#&gt; [13,] 11584 11585     1</span></span></code></pre></div>
 <p>You can set the query to a variable for storage</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>bwQ=<span class="kw">query.bigWig</span>(bw, <span class="dt">chrom=</span><span class="st">&#39;chr1&#39;</span>, <span class="dt">start=</span><span class="dv">1</span>, <span class="dt">end=</span><span class="dv">20000</span>)</span>
-<span id="cb6-2"><a href="#cb6-2"></a>bwQ[<span class="dv">3</span>]</span>
-<span id="cb6-3"><a href="#cb6-3"></a><span class="co">#&gt; [1] 10518</span></span></code></pre></div>
-<p>Then access the array like any other indexed array. This returnss the entire row.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>bwQ[<span class="dv">1</span>,]</span>
-<span id="cb7-2"><a href="#cb7-2"></a><span class="co">#&gt; start   end value </span></span>
-<span id="cb7-3"><a href="#cb7-3"></a><span class="co">#&gt; 10496 10497     1</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>bwQ=<span class="kw">query.bigWig</span>(bw, <span class="dt">chrom=</span><span class="st">&#39;chr1&#39;</span>, <span class="dt">start=</span><span class="dv">1</span>, <span class="dt">end=</span><span class="dv">20000</span>)</span>
+<span id="cb11-2"><a href="#cb11-2"></a>bwQ[<span class="dv">3</span>]</span>
+<span id="cb11-3"><a href="#cb11-3"></a><span class="co">#&gt; [1] 10518</span></span></code></pre></div>
+<p>Then access the array like any other indexed array. This returns the entire row.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>bwQ[<span class="dv">1</span>,]</span>
+<span id="cb12-2"><a href="#cb12-2"></a><span class="co">#&gt; start   end value </span></span>
+<span id="cb12-3"><a href="#cb12-3"></a><span class="co">#&gt; 10496 10497     1</span></span></code></pre></div>
 <p>This returns the specific row and column.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>bwQ[<span class="dv">1</span>,<span class="dv">2</span>]</span>
-<span id="cb8-2"><a href="#cb8-2"></a><span class="co">#&gt;   end </span></span>
-<span id="cb8-3"><a href="#cb8-3"></a><span class="co">#&gt; 10497</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>bwQ[<span class="dv">1</span>,<span class="dv">2</span>]</span>
+<span id="cb13-2"><a href="#cb13-2"></a><span class="co">#&gt;   end </span></span>
+<span id="cb13-3"><a href="#cb13-3"></a><span class="co">#&gt; 10497</span></span></code></pre></div>
 <p>It can be accesed by keyword too.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>bwQ[<span class="dv">1</span>,<span class="st">&#39;start&#39;</span>]</span>
-<span id="cb9-2"><a href="#cb9-2"></a><span class="co">#&gt; start </span></span>
-<span id="cb9-3"><a href="#cb9-3"></a><span class="co">#&gt; 10496</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>bwQ[<span class="dv">1</span>,<span class="st">&#39;start&#39;</span>]</span>
+<span id="cb14-2"><a href="#cb14-2"></a><span class="co">#&gt; start </span></span>
+<span id="cb14-3"><a href="#cb14-3"></a><span class="co">#&gt; 10496</span></span></code></pre></div>
+<p><code>clip</code> need to create instance</p>
 </div>
 <div id="print.bigwig" class="section level3">
 <h3>print.bigWig</h3>
 <p><code>print.bigWig(bw)</code> is used to print all of the attributes contained within the object.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw">print.bigWig</span>(bw)</span>
-<span id="cb10-2"><a href="#cb10-2"></a><span class="co">#&gt; bigWig</span></span>
-<span id="cb10-3"><a href="#cb10-3"></a><span class="co">#&gt;  version: 4 </span></span>
-<span id="cb10-4"><a href="#cb10-4"></a><span class="co">#&gt;  isCompressed: yes</span></span>
-<span id="cb10-5"><a href="#cb10-5"></a><span class="co">#&gt;  isSwapped: no</span></span>
-<span id="cb10-6"><a href="#cb10-6"></a><span class="co">#&gt;  primaryDataSize: 11,243,315 </span></span>
-<span id="cb10-7"><a href="#cb10-7"></a><span class="co">#&gt;  primaryIndexSize: 176,800 </span></span>
-<span id="cb10-8"><a href="#cb10-8"></a><span class="co">#&gt;  zoomLevels: 7 </span></span>
-<span id="cb10-9"><a href="#cb10-9"></a><span class="co">#&gt;  chromCount: 455 </span></span>
-<span id="cb10-10"><a href="#cb10-10"></a><span class="co">#&gt;      chr1 248956422 </span></span>
-<span id="cb10-11"><a href="#cb10-11"></a><span class="co">#&gt;      chr10 133797422 </span></span>
-<span id="cb10-12"><a href="#cb10-12"></a><span class="co">#&gt;      chr10_GL383545v1_alt 179254 </span></span>
-<span id="cb10-13"><a href="#cb10-13"></a><span class="co">#&gt;      chr10_GL383546v1_alt 309802 </span></span>
-<span id="cb10-14"><a href="#cb10-14"></a><span class="co">#&gt;      chr10_KI270824v1_alt 181496 </span></span>
-<span id="cb10-15"><a href="#cb10-15"></a><span class="co">#&gt;      chr10_KI270825v1_alt 188315 </span></span>
-<span id="cb10-16"><a href="#cb10-16"></a><span class="co">#&gt;      chr11 135086622 </span></span>
-<span id="cb10-17"><a href="#cb10-17"></a><span class="co">#&gt;      chr11_GL383547v1_alt 154407 </span></span>
-<span id="cb10-18"><a href="#cb10-18"></a><span class="co">#&gt;      chr11_JH159136v1_alt 200998 </span></span>
-<span id="cb10-19"><a href="#cb10-19"></a><span class="co">#&gt;      chr11_JH159137v1_alt 191409 </span></span>
-<span id="cb10-20"><a href="#cb10-20"></a><span class="co">#&gt;      chr11_KI270721v1_random 100316 </span></span>
-<span id="cb10-21"><a href="#cb10-21"></a><span class="co">#&gt;      chr11_KI270826v1_alt 186169 </span></span>
-<span id="cb10-22"><a href="#cb10-22"></a><span class="co">#&gt;      chr11_KI270827v1_alt 67707 </span></span>
-<span id="cb10-23"><a href="#cb10-23"></a><span class="co">#&gt;      chr11_KI270829v1_alt 204059 </span></span>
-<span id="cb10-24"><a href="#cb10-24"></a><span class="co">#&gt;      chr11_KI270830v1_alt 177092 </span></span>
-<span id="cb10-25"><a href="#cb10-25"></a><span class="co">#&gt;      chr11_KI270831v1_alt 296895 </span></span>
-<span id="cb10-26"><a href="#cb10-26"></a><span class="co">#&gt;      chr11_KI270832v1_alt 210133 </span></span>
-<span id="cb10-27"><a href="#cb10-27"></a><span class="co">#&gt;      chr11_KI270902v1_alt 106711 </span></span>
-<span id="cb10-28"><a href="#cb10-28"></a><span class="co">#&gt;      chr11_KI270903v1_alt 214625 </span></span>
-<span id="cb10-29"><a href="#cb10-29"></a><span class="co">#&gt;      chr11_KI270927v1_alt 218612 </span></span>
-<span id="cb10-30"><a href="#cb10-30"></a><span class="co">#&gt;      chr12 133275309 </span></span>
-<span id="cb10-31"><a href="#cb10-31"></a><span class="co">#&gt;      chr12_GL383549v1_alt 120804 </span></span>
-<span id="cb10-32"><a href="#cb10-32"></a><span class="co">#&gt;      chr12_GL383550v2_alt 169178 </span></span>
-<span id="cb10-33"><a href="#cb10-33"></a><span class="co">#&gt;      chr12_GL383551v1_alt 184319 </span></span>
-<span id="cb10-34"><a href="#cb10-34"></a><span class="co">#&gt;      chr12_GL383552v1_alt 138655 </span></span>
-<span id="cb10-35"><a href="#cb10-35"></a><span class="co">#&gt;      chr12_GL383553v2_alt 152874 </span></span>
-<span id="cb10-36"><a href="#cb10-36"></a><span class="co">#&gt;      chr12_GL877875v1_alt 167313 </span></span>
-<span id="cb10-37"><a href="#cb10-37"></a><span class="co">#&gt;      chr12_GL877876v1_alt 408271 </span></span>
-<span id="cb10-38"><a href="#cb10-38"></a><span class="co">#&gt;      chr12_KI270833v1_alt 76061 </span></span>
-<span id="cb10-39"><a href="#cb10-39"></a><span class="co">#&gt;      chr12_KI270834v1_alt 119498 </span></span>
-<span id="cb10-40"><a href="#cb10-40"></a><span class="co">#&gt;      chr12_KI270835v1_alt 238139 </span></span>
-<span id="cb10-41"><a href="#cb10-41"></a><span class="co">#&gt;      chr12_KI270836v1_alt 56134 </span></span>
-<span id="cb10-42"><a href="#cb10-42"></a><span class="co">#&gt;      chr12_KI270837v1_alt 40090 </span></span>
-<span id="cb10-43"><a href="#cb10-43"></a><span class="co">#&gt;      chr12_KI270904v1_alt 572349 </span></span>
-<span id="cb10-44"><a href="#cb10-44"></a><span class="co">#&gt;      chr13 114364328 </span></span>
-<span id="cb10-45"><a href="#cb10-45"></a><span class="co">#&gt;      chr13_KI270838v1_alt 306913 </span></span>
-<span id="cb10-46"><a href="#cb10-46"></a><span class="co">#&gt;      chr13_KI270839v1_alt 180306 </span></span>
-<span id="cb10-47"><a href="#cb10-47"></a><span class="co">#&gt;      chr13_KI270840v1_alt 191684 </span></span>
-<span id="cb10-48"><a href="#cb10-48"></a><span class="co">#&gt;      chr13_KI270841v1_alt 169134 </span></span>
-<span id="cb10-49"><a href="#cb10-49"></a><span class="co">#&gt;      chr13_KI270842v1_alt 37287 </span></span>
-<span id="cb10-50"><a href="#cb10-50"></a><span class="co">#&gt;      chr13_KI270843v1_alt 103832 </span></span>
-<span id="cb10-51"><a href="#cb10-51"></a><span class="co">#&gt;      chr14 107043718 </span></span>
-<span id="cb10-52"><a href="#cb10-52"></a><span class="co">#&gt;      chr14_GL000009v2_random 201709 </span></span>
-<span id="cb10-53"><a href="#cb10-53"></a><span class="co">#&gt;      chr14_GL000194v1_random 191469 </span></span>
-<span id="cb10-54"><a href="#cb10-54"></a><span class="co">#&gt;      chr14_GL000225v1_random 211173 </span></span>
-<span id="cb10-55"><a href="#cb10-55"></a><span class="co">#&gt;      chr14_KI270722v1_random 194050 </span></span>
-<span id="cb10-56"><a href="#cb10-56"></a><span class="co">#&gt;      chr14_KI270723v1_random 38115 </span></span>
-<span id="cb10-57"><a href="#cb10-57"></a><span class="co">#&gt;      chr14_KI270724v1_random 39555 </span></span>
-<span id="cb10-58"><a href="#cb10-58"></a><span class="co">#&gt;      chr14_KI270725v1_random 172810 </span></span>
-<span id="cb10-59"><a href="#cb10-59"></a><span class="co">#&gt;      chr14_KI270726v1_random 43739 </span></span>
-<span id="cb10-60"><a href="#cb10-60"></a><span class="co">#&gt;      chr14_KI270844v1_alt 322166 </span></span>
-<span id="cb10-61"><a href="#cb10-61"></a><span class="co">#&gt;      chr14_KI270845v1_alt 180703 </span></span>
-<span id="cb10-62"><a href="#cb10-62"></a><span class="co">#&gt;      chr14_KI270846v1_alt 1351393 </span></span>
-<span id="cb10-63"><a href="#cb10-63"></a><span class="co">#&gt;      chr14_KI270847v1_alt 1511111 </span></span>
-<span id="cb10-64"><a href="#cb10-64"></a><span class="co">#&gt;      chr15 101991189 </span></span>
-<span id="cb10-65"><a href="#cb10-65"></a><span class="co">#&gt;      chr15_GL383554v1_alt 296527 </span></span>
-<span id="cb10-66"><a href="#cb10-66"></a><span class="co">#&gt;      chr15_GL383555v2_alt 388773 </span></span>
-<span id="cb10-67"><a href="#cb10-67"></a><span class="co">#&gt;      chr15_KI270727v1_random 448248 </span></span>
-<span id="cb10-68"><a href="#cb10-68"></a><span class="co">#&gt;      chr15_KI270848v1_alt 327382 </span></span>
-<span id="cb10-69"><a href="#cb10-69"></a><span class="co">#&gt;      chr15_KI270849v1_alt 244917 </span></span>
-<span id="cb10-70"><a href="#cb10-70"></a><span class="co">#&gt;      chr15_KI270850v1_alt 430880 </span></span>
-<span id="cb10-71"><a href="#cb10-71"></a><span class="co">#&gt;      chr15_KI270851v1_alt 263054 </span></span>
-<span id="cb10-72"><a href="#cb10-72"></a><span class="co">#&gt;      chr15_KI270852v1_alt 478999 </span></span>
-<span id="cb10-73"><a href="#cb10-73"></a><span class="co">#&gt;      chr15_KI270905v1_alt 5161414 </span></span>
-<span id="cb10-74"><a href="#cb10-74"></a><span class="co">#&gt;      chr15_KI270906v1_alt 196384 </span></span>
-<span id="cb10-75"><a href="#cb10-75"></a><span class="co">#&gt;      chr16 90338345 </span></span>
-<span id="cb10-76"><a href="#cb10-76"></a><span class="co">#&gt;      chr16_GL383556v1_alt 192462 </span></span>
-<span id="cb10-77"><a href="#cb10-77"></a><span class="co">#&gt;      chr16_GL383557v1_alt 89672 </span></span>
-<span id="cb10-78"><a href="#cb10-78"></a><span class="co">#&gt;      chr16_KI270728v1_random 1872759 </span></span>
-<span id="cb10-79"><a href="#cb10-79"></a><span class="co">#&gt;      chr16_KI270853v1_alt 2659700 </span></span>
-<span id="cb10-80"><a href="#cb10-80"></a><span class="co">#&gt;      chr16_KI270854v1_alt 134193 </span></span>
-<span id="cb10-81"><a href="#cb10-81"></a><span class="co">#&gt;      chr16_KI270855v1_alt 232857 </span></span>
-<span id="cb10-82"><a href="#cb10-82"></a><span class="co">#&gt;      chr16_KI270856v1_alt 63982 </span></span>
-<span id="cb10-83"><a href="#cb10-83"></a><span class="co">#&gt;      chr17 83257441 </span></span>
-<span id="cb10-84"><a href="#cb10-84"></a><span class="co">#&gt;      chr17_GL000205v2_random 185591 </span></span>
-<span id="cb10-85"><a href="#cb10-85"></a><span class="co">#&gt;      chr17_GL000258v2_alt 1821992 </span></span>
-<span id="cb10-86"><a href="#cb10-86"></a><span class="co">#&gt;      chr17_GL383563v3_alt 375691 </span></span>
-<span id="cb10-87"><a href="#cb10-87"></a><span class="co">#&gt;      chr17_GL383564v2_alt 133151 </span></span>
-<span id="cb10-88"><a href="#cb10-88"></a><span class="co">#&gt;      chr17_GL383565v1_alt 223995 </span></span>
-<span id="cb10-89"><a href="#cb10-89"></a><span class="co">#&gt;      chr17_GL383566v1_alt 90219 </span></span>
-<span id="cb10-90"><a href="#cb10-90"></a><span class="co">#&gt;      chr17_JH159146v1_alt 278131 </span></span>
-<span id="cb10-91"><a href="#cb10-91"></a><span class="co">#&gt;      chr17_JH159147v1_alt 70345 </span></span>
-<span id="cb10-92"><a href="#cb10-92"></a><span class="co">#&gt;      chr17_JH159148v1_alt 88070 </span></span>
-<span id="cb10-93"><a href="#cb10-93"></a><span class="co">#&gt;      chr17_KI270729v1_random 280839 </span></span>
-<span id="cb10-94"><a href="#cb10-94"></a><span class="co">#&gt;      chr17_KI270730v1_random 112551 </span></span>
-<span id="cb10-95"><a href="#cb10-95"></a><span class="co">#&gt;      chr17_KI270857v1_alt 2877074 </span></span>
-<span id="cb10-96"><a href="#cb10-96"></a><span class="co">#&gt;      chr17_KI270858v1_alt 235827 </span></span>
-<span id="cb10-97"><a href="#cb10-97"></a><span class="co">#&gt;      chr17_KI270859v1_alt 108763 </span></span>
-<span id="cb10-98"><a href="#cb10-98"></a><span class="co">#&gt;      chr17_KI270860v1_alt 178921 </span></span>
-<span id="cb10-99"><a href="#cb10-99"></a><span class="co">#&gt;      chr17_KI270861v1_alt 196688 </span></span>
-<span id="cb10-100"><a href="#cb10-100"></a><span class="co">#&gt;      chr17_KI270862v1_alt 391357 </span></span>
-<span id="cb10-101"><a href="#cb10-101"></a><span class="co">#&gt;      chr17_KI270907v1_alt 137721 </span></span>
-<span id="cb10-102"><a href="#cb10-102"></a><span class="co">#&gt;      chr17_KI270908v1_alt 1423190 </span></span>
-<span id="cb10-103"><a href="#cb10-103"></a><span class="co">#&gt;      chr17_KI270909v1_alt 325800 </span></span>
-<span id="cb10-104"><a href="#cb10-104"></a><span class="co">#&gt;      chr17_KI270910v1_alt 157099 </span></span>
-<span id="cb10-105"><a href="#cb10-105"></a><span class="co">#&gt;      chr18 80373285 </span></span>
-<span id="cb10-106"><a href="#cb10-106"></a><span class="co">#&gt;      chr18_GL383567v1_alt 289831 </span></span>
-<span id="cb10-107"><a href="#cb10-107"></a><span class="co">#&gt;      chr18_GL383568v1_alt 104552 </span></span>
-<span id="cb10-108"><a href="#cb10-108"></a><span class="co">#&gt;      chr18_GL383569v1_alt 167950 </span></span>
-<span id="cb10-109"><a href="#cb10-109"></a><span class="co">#&gt;      chr18_GL383570v1_alt 164789 </span></span>
-<span id="cb10-110"><a href="#cb10-110"></a><span class="co">#&gt;      chr18_GL383571v1_alt 198278 </span></span>
-<span id="cb10-111"><a href="#cb10-111"></a><span class="co">#&gt;      chr18_GL383572v1_alt 159547 </span></span>
-<span id="cb10-112"><a href="#cb10-112"></a><span class="co">#&gt;      chr18_KI270863v1_alt 167999 </span></span>
-<span id="cb10-113"><a href="#cb10-113"></a><span class="co">#&gt;      chr18_KI270864v1_alt 111737 </span></span>
-<span id="cb10-114"><a href="#cb10-114"></a><span class="co">#&gt;      chr18_KI270911v1_alt 157710 </span></span>
-<span id="cb10-115"><a href="#cb10-115"></a><span class="co">#&gt;      chr18_KI270912v1_alt 174061 </span></span>
-<span id="cb10-116"><a href="#cb10-116"></a><span class="co">#&gt;      chr19 58617616 </span></span>
-<span id="cb10-117"><a href="#cb10-117"></a><span class="co">#&gt;      chr19_GL000209v2_alt 177381 </span></span>
-<span id="cb10-118"><a href="#cb10-118"></a><span class="co">#&gt;      chr19_GL383573v1_alt 385657 </span></span>
-<span id="cb10-119"><a href="#cb10-119"></a><span class="co">#&gt;      chr19_GL383574v1_alt 155864 </span></span>
-<span id="cb10-120"><a href="#cb10-120"></a><span class="co">#&gt;      chr19_GL383575v2_alt 170222 </span></span>
-<span id="cb10-121"><a href="#cb10-121"></a><span class="co">#&gt;      chr19_GL383576v1_alt 188024 </span></span>
-<span id="cb10-122"><a href="#cb10-122"></a><span class="co">#&gt;      chr19_GL949746v1_alt 987716 </span></span>
-<span id="cb10-123"><a href="#cb10-123"></a><span class="co">#&gt;      chr19_GL949747v2_alt 729520 </span></span>
-<span id="cb10-124"><a href="#cb10-124"></a><span class="co">#&gt;      chr19_GL949748v2_alt 1064304 </span></span>
-<span id="cb10-125"><a href="#cb10-125"></a><span class="co">#&gt;      chr19_GL949749v2_alt 1091841 </span></span>
-<span id="cb10-126"><a href="#cb10-126"></a><span class="co">#&gt;      chr19_GL949750v2_alt 1066390 </span></span>
-<span id="cb10-127"><a href="#cb10-127"></a><span class="co">#&gt;      chr19_GL949751v2_alt 1002683 </span></span>
-<span id="cb10-128"><a href="#cb10-128"></a><span class="co">#&gt;      chr19_GL949752v1_alt 987100 </span></span>
-<span id="cb10-129"><a href="#cb10-129"></a><span class="co">#&gt;      chr19_GL949753v2_alt 796479 </span></span>
-<span id="cb10-130"><a href="#cb10-130"></a><span class="co">#&gt;      chr19_KI270865v1_alt 52969 </span></span>
-<span id="cb10-131"><a href="#cb10-131"></a><span class="co">#&gt;      chr19_KI270866v1_alt 43156 </span></span>
-<span id="cb10-132"><a href="#cb10-132"></a><span class="co">#&gt;      chr19_KI270867v1_alt 233762 </span></span>
-<span id="cb10-133"><a href="#cb10-133"></a><span class="co">#&gt;      chr19_KI270868v1_alt 61734 </span></span>
-<span id="cb10-134"><a href="#cb10-134"></a><span class="co">#&gt;      chr19_KI270882v1_alt 248807 </span></span>
-<span id="cb10-135"><a href="#cb10-135"></a><span class="co">#&gt;      chr19_KI270883v1_alt 170399 </span></span>
-<span id="cb10-136"><a href="#cb10-136"></a><span class="co">#&gt;      chr19_KI270884v1_alt 157053 </span></span>
-<span id="cb10-137"><a href="#cb10-137"></a><span class="co">#&gt;      chr19_KI270885v1_alt 171027 </span></span>
-<span id="cb10-138"><a href="#cb10-138"></a><span class="co">#&gt;      chr19_KI270886v1_alt 204239 </span></span>
-<span id="cb10-139"><a href="#cb10-139"></a><span class="co">#&gt;      chr19_KI270887v1_alt 209512 </span></span>
-<span id="cb10-140"><a href="#cb10-140"></a><span class="co">#&gt;      chr19_KI270888v1_alt 155532 </span></span>
-<span id="cb10-141"><a href="#cb10-141"></a><span class="co">#&gt;      chr19_KI270889v1_alt 170698 </span></span>
-<span id="cb10-142"><a href="#cb10-142"></a><span class="co">#&gt;      chr19_KI270890v1_alt 184499 </span></span>
-<span id="cb10-143"><a href="#cb10-143"></a><span class="co">#&gt;      chr19_KI270891v1_alt 170680 </span></span>
-<span id="cb10-144"><a href="#cb10-144"></a><span class="co">#&gt;      chr19_KI270914v1_alt 205194 </span></span>
-<span id="cb10-145"><a href="#cb10-145"></a><span class="co">#&gt;      chr19_KI270915v1_alt 170665 </span></span>
-<span id="cb10-146"><a href="#cb10-146"></a><span class="co">#&gt;      chr19_KI270916v1_alt 184516 </span></span>
-<span id="cb10-147"><a href="#cb10-147"></a><span class="co">#&gt;      chr19_KI270917v1_alt 190932 </span></span>
-<span id="cb10-148"><a href="#cb10-148"></a><span class="co">#&gt;      chr19_KI270918v1_alt 123111 </span></span>
-<span id="cb10-149"><a href="#cb10-149"></a><span class="co">#&gt;      chr19_KI270919v1_alt 170701 </span></span>
-<span id="cb10-150"><a href="#cb10-150"></a><span class="co">#&gt;      chr19_KI270920v1_alt 198005 </span></span>
-<span id="cb10-151"><a href="#cb10-151"></a><span class="co">#&gt;      chr19_KI270921v1_alt 282224 </span></span>
-<span id="cb10-152"><a href="#cb10-152"></a><span class="co">#&gt;      chr19_KI270922v1_alt 187935 </span></span>
-<span id="cb10-153"><a href="#cb10-153"></a><span class="co">#&gt;      chr19_KI270923v1_alt 189352 </span></span>
-<span id="cb10-154"><a href="#cb10-154"></a><span class="co">#&gt;      chr19_KI270929v1_alt 186203 </span></span>
-<span id="cb10-155"><a href="#cb10-155"></a><span class="co">#&gt;      chr19_KI270930v1_alt 200773 </span></span>
-<span id="cb10-156"><a href="#cb10-156"></a><span class="co">#&gt;      chr19_KI270931v1_alt 170148 </span></span>
-<span id="cb10-157"><a href="#cb10-157"></a><span class="co">#&gt;      chr19_KI270932v1_alt 215732 </span></span>
-<span id="cb10-158"><a href="#cb10-158"></a><span class="co">#&gt;      chr19_KI270933v1_alt 170537 </span></span>
-<span id="cb10-159"><a href="#cb10-159"></a><span class="co">#&gt;      chr19_KI270938v1_alt 1066800 </span></span>
-<span id="cb10-160"><a href="#cb10-160"></a><span class="co">#&gt;      chr1_GL383518v1_alt 182439 </span></span>
-<span id="cb10-161"><a href="#cb10-161"></a><span class="co">#&gt;      chr1_GL383519v1_alt 110268 </span></span>
-<span id="cb10-162"><a href="#cb10-162"></a><span class="co">#&gt;      chr1_GL383520v2_alt 366580 </span></span>
-<span id="cb10-163"><a href="#cb10-163"></a><span class="co">#&gt;      chr1_KI270706v1_random 175055 </span></span>
-<span id="cb10-164"><a href="#cb10-164"></a><span class="co">#&gt;      chr1_KI270707v1_random 32032 </span></span>
-<span id="cb10-165"><a href="#cb10-165"></a><span class="co">#&gt;      chr1_KI270708v1_random 127682 </span></span>
-<span id="cb10-166"><a href="#cb10-166"></a><span class="co">#&gt;      chr1_KI270709v1_random 66860 </span></span>
-<span id="cb10-167"><a href="#cb10-167"></a><span class="co">#&gt;      chr1_KI270710v1_random 40176 </span></span>
-<span id="cb10-168"><a href="#cb10-168"></a><span class="co">#&gt;      chr1_KI270711v1_random 42210 </span></span>
-<span id="cb10-169"><a href="#cb10-169"></a><span class="co">#&gt;      chr1_KI270712v1_random 176043 </span></span>
-<span id="cb10-170"><a href="#cb10-170"></a><span class="co">#&gt;      chr1_KI270713v1_random 40745 </span></span>
-<span id="cb10-171"><a href="#cb10-171"></a><span class="co">#&gt;      chr1_KI270714v1_random 41717 </span></span>
-<span id="cb10-172"><a href="#cb10-172"></a><span class="co">#&gt;      chr1_KI270759v1_alt 425601 </span></span>
-<span id="cb10-173"><a href="#cb10-173"></a><span class="co">#&gt;      chr1_KI270760v1_alt 109528 </span></span>
-<span id="cb10-174"><a href="#cb10-174"></a><span class="co">#&gt;      chr1_KI270761v1_alt 165834 </span></span>
-<span id="cb10-175"><a href="#cb10-175"></a><span class="co">#&gt;      chr1_KI270762v1_alt 354444 </span></span>
-<span id="cb10-176"><a href="#cb10-176"></a><span class="co">#&gt;      chr1_KI270763v1_alt 911658 </span></span>
-<span id="cb10-177"><a href="#cb10-177"></a><span class="co">#&gt;      chr1_KI270764v1_alt 50258 </span></span>
-<span id="cb10-178"><a href="#cb10-178"></a><span class="co">#&gt;      chr1_KI270765v1_alt 185285 </span></span>
-<span id="cb10-179"><a href="#cb10-179"></a><span class="co">#&gt;      chr1_KI270766v1_alt 256271 </span></span>
-<span id="cb10-180"><a href="#cb10-180"></a><span class="co">#&gt;      chr1_KI270892v1_alt 162212 </span></span>
-<span id="cb10-181"><a href="#cb10-181"></a><span class="co">#&gt;      chr2 242193529 </span></span>
-<span id="cb10-182"><a href="#cb10-182"></a><span class="co">#&gt;      chr20 64444167 </span></span>
-<span id="cb10-183"><a href="#cb10-183"></a><span class="co">#&gt;      chr20_GL383577v2_alt 128386 </span></span>
-<span id="cb10-184"><a href="#cb10-184"></a><span class="co">#&gt;      chr20_KI270869v1_alt 118774 </span></span>
-<span id="cb10-185"><a href="#cb10-185"></a><span class="co">#&gt;      chr20_KI270870v1_alt 183433 </span></span>
-<span id="cb10-186"><a href="#cb10-186"></a><span class="co">#&gt;      chr20_KI270871v1_alt 58661 </span></span>
-<span id="cb10-187"><a href="#cb10-187"></a><span class="co">#&gt;      chr21 46709983 </span></span>
-<span id="cb10-188"><a href="#cb10-188"></a><span class="co">#&gt;      chr21_GL383578v2_alt 63917 </span></span>
-<span id="cb10-189"><a href="#cb10-189"></a><span class="co">#&gt;      chr21_GL383579v2_alt 201197 </span></span>
-<span id="cb10-190"><a href="#cb10-190"></a><span class="co">#&gt;      chr21_GL383580v2_alt 74653 </span></span>
-<span id="cb10-191"><a href="#cb10-191"></a><span class="co">#&gt;      chr21_GL383581v2_alt 116689 </span></span>
-<span id="cb10-192"><a href="#cb10-192"></a><span class="co">#&gt;      chr21_KI270872v1_alt 82692 </span></span>
-<span id="cb10-193"><a href="#cb10-193"></a><span class="co">#&gt;      chr21_KI270873v1_alt 143900 </span></span>
-<span id="cb10-194"><a href="#cb10-194"></a><span class="co">#&gt;      chr21_KI270874v1_alt 166743 </span></span>
-<span id="cb10-195"><a href="#cb10-195"></a><span class="co">#&gt;      chr22 50818468 </span></span>
-<span id="cb10-196"><a href="#cb10-196"></a><span class="co">#&gt;      chr22_GL383582v2_alt 162811 </span></span>
-<span id="cb10-197"><a href="#cb10-197"></a><span class="co">#&gt;      chr22_GL383583v2_alt 96924 </span></span>
-<span id="cb10-198"><a href="#cb10-198"></a><span class="co">#&gt;      chr22_KB663609v1_alt 74013 </span></span>
-<span id="cb10-199"><a href="#cb10-199"></a><span class="co">#&gt;      chr22_KI270731v1_random 150754 </span></span>
-<span id="cb10-200"><a href="#cb10-200"></a><span class="co">#&gt;      chr22_KI270732v1_random 41543 </span></span>
-<span id="cb10-201"><a href="#cb10-201"></a><span class="co">#&gt;      chr22_KI270733v1_random 179772 </span></span>
-<span id="cb10-202"><a href="#cb10-202"></a><span class="co">#&gt;      chr22_KI270734v1_random 165050 </span></span>
-<span id="cb10-203"><a href="#cb10-203"></a><span class="co">#&gt;      chr22_KI270735v1_random 42811 </span></span>
-<span id="cb10-204"><a href="#cb10-204"></a><span class="co">#&gt;      chr22_KI270736v1_random 181920 </span></span>
-<span id="cb10-205"><a href="#cb10-205"></a><span class="co">#&gt;      chr22_KI270737v1_random 103838 </span></span>
-<span id="cb10-206"><a href="#cb10-206"></a><span class="co">#&gt;      chr22_KI270738v1_random 99375 </span></span>
-<span id="cb10-207"><a href="#cb10-207"></a><span class="co">#&gt;      chr22_KI270739v1_random 73985 </span></span>
-<span id="cb10-208"><a href="#cb10-208"></a><span class="co">#&gt;      chr22_KI270875v1_alt 259914 </span></span>
-<span id="cb10-209"><a href="#cb10-209"></a><span class="co">#&gt;      chr22_KI270876v1_alt 263666 </span></span>
-<span id="cb10-210"><a href="#cb10-210"></a><span class="co">#&gt;      chr22_KI270877v1_alt 101331 </span></span>
-<span id="cb10-211"><a href="#cb10-211"></a><span class="co">#&gt;      chr22_KI270878v1_alt 186262 </span></span>
-<span id="cb10-212"><a href="#cb10-212"></a><span class="co">#&gt;      chr22_KI270879v1_alt 304135 </span></span>
-<span id="cb10-213"><a href="#cb10-213"></a><span class="co">#&gt;      chr22_KI270928v1_alt 176103 </span></span>
-<span id="cb10-214"><a href="#cb10-214"></a><span class="co">#&gt;      chr2_GL383521v1_alt 143390 </span></span>
-<span id="cb10-215"><a href="#cb10-215"></a><span class="co">#&gt;      chr2_GL383522v1_alt 123821 </span></span>
-<span id="cb10-216"><a href="#cb10-216"></a><span class="co">#&gt;      chr2_GL582966v2_alt 96131 </span></span>
-<span id="cb10-217"><a href="#cb10-217"></a><span class="co">#&gt;      chr2_KI270715v1_random 161471 </span></span>
-<span id="cb10-218"><a href="#cb10-218"></a><span class="co">#&gt;      chr2_KI270716v1_random 153799 </span></span>
-<span id="cb10-219"><a href="#cb10-219"></a><span class="co">#&gt;      chr2_KI270767v1_alt 161578 </span></span>
-<span id="cb10-220"><a href="#cb10-220"></a><span class="co">#&gt;      chr2_KI270768v1_alt 110099 </span></span>
-<span id="cb10-221"><a href="#cb10-221"></a><span class="co">#&gt;      chr2_KI270769v1_alt 120616 </span></span>
-<span id="cb10-222"><a href="#cb10-222"></a><span class="co">#&gt;      chr2_KI270770v1_alt 136240 </span></span>
-<span id="cb10-223"><a href="#cb10-223"></a><span class="co">#&gt;      chr2_KI270771v1_alt 110395 </span></span>
-<span id="cb10-224"><a href="#cb10-224"></a><span class="co">#&gt;      chr2_KI270772v1_alt 133041 </span></span>
-<span id="cb10-225"><a href="#cb10-225"></a><span class="co">#&gt;      chr2_KI270773v1_alt 70887 </span></span>
-<span id="cb10-226"><a href="#cb10-226"></a><span class="co">#&gt;      chr2_KI270774v1_alt 223625 </span></span>
-<span id="cb10-227"><a href="#cb10-227"></a><span class="co">#&gt;      chr2_KI270775v1_alt 138019 </span></span>
-<span id="cb10-228"><a href="#cb10-228"></a><span class="co">#&gt;      chr2_KI270776v1_alt 174166 </span></span>
-<span id="cb10-229"><a href="#cb10-229"></a><span class="co">#&gt;      chr2_KI270893v1_alt 161218 </span></span>
-<span id="cb10-230"><a href="#cb10-230"></a><span class="co">#&gt;      chr2_KI270894v1_alt 214158 </span></span>
-<span id="cb10-231"><a href="#cb10-231"></a><span class="co">#&gt;      chr3 198295559 </span></span>
-<span id="cb10-232"><a href="#cb10-232"></a><span class="co">#&gt;      chr3_GL000221v1_random 155397 </span></span>
-<span id="cb10-233"><a href="#cb10-233"></a><span class="co">#&gt;      chr3_GL383526v1_alt 180671 </span></span>
-<span id="cb10-234"><a href="#cb10-234"></a><span class="co">#&gt;      chr3_JH636055v2_alt 173151 </span></span>
-<span id="cb10-235"><a href="#cb10-235"></a><span class="co">#&gt;      chr3_KI270777v1_alt 173649 </span></span>
-<span id="cb10-236"><a href="#cb10-236"></a><span class="co">#&gt;      chr3_KI270778v1_alt 248252 </span></span>
-<span id="cb10-237"><a href="#cb10-237"></a><span class="co">#&gt;      chr3_KI270779v1_alt 205312 </span></span>
-<span id="cb10-238"><a href="#cb10-238"></a><span class="co">#&gt;      chr3_KI270780v1_alt 224108 </span></span>
-<span id="cb10-239"><a href="#cb10-239"></a><span class="co">#&gt;      chr3_KI270781v1_alt 113034 </span></span>
-<span id="cb10-240"><a href="#cb10-240"></a><span class="co">#&gt;      chr3_KI270782v1_alt 162429 </span></span>
-<span id="cb10-241"><a href="#cb10-241"></a><span class="co">#&gt;      chr3_KI270783v1_alt 109187 </span></span>
-<span id="cb10-242"><a href="#cb10-242"></a><span class="co">#&gt;      chr3_KI270784v1_alt 184404 </span></span>
-<span id="cb10-243"><a href="#cb10-243"></a><span class="co">#&gt;      chr3_KI270895v1_alt 162896 </span></span>
-<span id="cb10-244"><a href="#cb10-244"></a><span class="co">#&gt;      chr3_KI270924v1_alt 166540 </span></span>
-<span id="cb10-245"><a href="#cb10-245"></a><span class="co">#&gt;      chr3_KI270934v1_alt 163458 </span></span>
-<span id="cb10-246"><a href="#cb10-246"></a><span class="co">#&gt;      chr3_KI270935v1_alt 197351 </span></span>
-<span id="cb10-247"><a href="#cb10-247"></a><span class="co">#&gt;      chr3_KI270936v1_alt 164170 </span></span>
-<span id="cb10-248"><a href="#cb10-248"></a><span class="co">#&gt;      chr3_KI270937v1_alt 165607 </span></span>
-<span id="cb10-249"><a href="#cb10-249"></a><span class="co">#&gt;      chr4 190214555 </span></span>
-<span id="cb10-250"><a href="#cb10-250"></a><span class="co">#&gt;      chr4_GL000008v2_random 209709 </span></span>
-<span id="cb10-251"><a href="#cb10-251"></a><span class="co">#&gt;      chr4_GL000257v2_alt 586476 </span></span>
-<span id="cb10-252"><a href="#cb10-252"></a><span class="co">#&gt;      chr4_GL383527v1_alt 164536 </span></span>
-<span id="cb10-253"><a href="#cb10-253"></a><span class="co">#&gt;      chr4_GL383528v1_alt 376187 </span></span>
-<span id="cb10-254"><a href="#cb10-254"></a><span class="co">#&gt;      chr4_KI270785v1_alt 119912 </span></span>
-<span id="cb10-255"><a href="#cb10-255"></a><span class="co">#&gt;      chr4_KI270786v1_alt 244096 </span></span>
-<span id="cb10-256"><a href="#cb10-256"></a><span class="co">#&gt;      chr4_KI270787v1_alt 111943 </span></span>
-<span id="cb10-257"><a href="#cb10-257"></a><span class="co">#&gt;      chr4_KI270788v1_alt 158965 </span></span>
-<span id="cb10-258"><a href="#cb10-258"></a><span class="co">#&gt;      chr4_KI270789v1_alt 205944 </span></span>
-<span id="cb10-259"><a href="#cb10-259"></a><span class="co">#&gt;      chr4_KI270790v1_alt 220246 </span></span>
-<span id="cb10-260"><a href="#cb10-260"></a><span class="co">#&gt;      chr4_KI270896v1_alt 378547 </span></span>
-<span id="cb10-261"><a href="#cb10-261"></a><span class="co">#&gt;      chr4_KI270925v1_alt 555799 </span></span>
-<span id="cb10-262"><a href="#cb10-262"></a><span class="co">#&gt;      chr5 181538259 </span></span>
-<span id="cb10-263"><a href="#cb10-263"></a><span class="co">#&gt;      chr5_GL000208v1_random 92689 </span></span>
-<span id="cb10-264"><a href="#cb10-264"></a><span class="co">#&gt;      chr5_GL339449v2_alt 1612928 </span></span>
-<span id="cb10-265"><a href="#cb10-265"></a><span class="co">#&gt;      chr5_GL383530v1_alt 101241 </span></span>
-<span id="cb10-266"><a href="#cb10-266"></a><span class="co">#&gt;      chr5_GL383531v1_alt 173459 </span></span>
-<span id="cb10-267"><a href="#cb10-267"></a><span class="co">#&gt;      chr5_GL383532v1_alt 82728 </span></span>
-<span id="cb10-268"><a href="#cb10-268"></a><span class="co">#&gt;      chr5_GL949742v1_alt 226852 </span></span>
-<span id="cb10-269"><a href="#cb10-269"></a><span class="co">#&gt;      chr5_KI270791v1_alt 195710 </span></span>
-<span id="cb10-270"><a href="#cb10-270"></a><span class="co">#&gt;      chr5_KI270792v1_alt 179043 </span></span>
-<span id="cb10-271"><a href="#cb10-271"></a><span class="co">#&gt;      chr5_KI270793v1_alt 126136 </span></span>
-<span id="cb10-272"><a href="#cb10-272"></a><span class="co">#&gt;      chr5_KI270794v1_alt 164558 </span></span>
-<span id="cb10-273"><a href="#cb10-273"></a><span class="co">#&gt;      chr5_KI270795v1_alt 131892 </span></span>
-<span id="cb10-274"><a href="#cb10-274"></a><span class="co">#&gt;      chr5_KI270796v1_alt 172708 </span></span>
-<span id="cb10-275"><a href="#cb10-275"></a><span class="co">#&gt;      chr5_KI270897v1_alt 1144418 </span></span>
-<span id="cb10-276"><a href="#cb10-276"></a><span class="co">#&gt;      chr5_KI270898v1_alt 130957 </span></span>
-<span id="cb10-277"><a href="#cb10-277"></a><span class="co">#&gt;      chr6 170805979 </span></span>
-<span id="cb10-278"><a href="#cb10-278"></a><span class="co">#&gt;      chr6_GL000250v2_alt 4672374 </span></span>
-<span id="cb10-279"><a href="#cb10-279"></a><span class="co">#&gt;      chr6_GL000251v2_alt 4795265 </span></span>
-<span id="cb10-280"><a href="#cb10-280"></a><span class="co">#&gt;      chr6_GL000252v2_alt 4604811 </span></span>
-<span id="cb10-281"><a href="#cb10-281"></a><span class="co">#&gt;      chr6_GL000253v2_alt 4677643 </span></span>
-<span id="cb10-282"><a href="#cb10-282"></a><span class="co">#&gt;      chr6_GL000254v2_alt 4827813 </span></span>
-<span id="cb10-283"><a href="#cb10-283"></a><span class="co">#&gt;      chr6_GL000255v2_alt 4606388 </span></span>
-<span id="cb10-284"><a href="#cb10-284"></a><span class="co">#&gt;      chr6_GL000256v2_alt 4929269 </span></span>
-<span id="cb10-285"><a href="#cb10-285"></a><span class="co">#&gt;      chr6_GL383533v1_alt 124736 </span></span>
-<span id="cb10-286"><a href="#cb10-286"></a><span class="co">#&gt;      chr6_KB021644v2_alt 185823 </span></span>
-<span id="cb10-287"><a href="#cb10-287"></a><span class="co">#&gt;      chr6_KI270758v1_alt 76752 </span></span>
-<span id="cb10-288"><a href="#cb10-288"></a><span class="co">#&gt;      chr6_KI270797v1_alt 197536 </span></span>
-<span id="cb10-289"><a href="#cb10-289"></a><span class="co">#&gt;      chr6_KI270798v1_alt 271782 </span></span>
-<span id="cb10-290"><a href="#cb10-290"></a><span class="co">#&gt;      chr6_KI270799v1_alt 152148 </span></span>
-<span id="cb10-291"><a href="#cb10-291"></a><span class="co">#&gt;      chr6_KI270800v1_alt 175808 </span></span>
-<span id="cb10-292"><a href="#cb10-292"></a><span class="co">#&gt;      chr6_KI270801v1_alt 870480 </span></span>
-<span id="cb10-293"><a href="#cb10-293"></a><span class="co">#&gt;      chr6_KI270802v1_alt 75005 </span></span>
-<span id="cb10-294"><a href="#cb10-294"></a><span class="co">#&gt;      chr7 159345973 </span></span>
-<span id="cb10-295"><a href="#cb10-295"></a><span class="co">#&gt;      chr7_GL383534v2_alt 119183 </span></span>
-<span id="cb10-296"><a href="#cb10-296"></a><span class="co">#&gt;      chr7_KI270803v1_alt 1111570 </span></span>
-<span id="cb10-297"><a href="#cb10-297"></a><span class="co">#&gt;      chr7_KI270804v1_alt 157952 </span></span>
-<span id="cb10-298"><a href="#cb10-298"></a><span class="co">#&gt;      chr7_KI270805v1_alt 209988 </span></span>
-<span id="cb10-299"><a href="#cb10-299"></a><span class="co">#&gt;      chr7_KI270806v1_alt 158166 </span></span>
-<span id="cb10-300"><a href="#cb10-300"></a><span class="co">#&gt;      chr7_KI270807v1_alt 126434 </span></span>
-<span id="cb10-301"><a href="#cb10-301"></a><span class="co">#&gt;      chr7_KI270808v1_alt 271455 </span></span>
-<span id="cb10-302"><a href="#cb10-302"></a><span class="co">#&gt;      chr7_KI270809v1_alt 209586 </span></span>
-<span id="cb10-303"><a href="#cb10-303"></a><span class="co">#&gt;      chr7_KI270899v1_alt 190869 </span></span>
-<span id="cb10-304"><a href="#cb10-304"></a><span class="co">#&gt;      chr8 145138636 </span></span>
-<span id="cb10-305"><a href="#cb10-305"></a><span class="co">#&gt;      chr8_KI270810v1_alt 374415 </span></span>
-<span id="cb10-306"><a href="#cb10-306"></a><span class="co">#&gt;      chr8_KI270811v1_alt 292436 </span></span>
-<span id="cb10-307"><a href="#cb10-307"></a><span class="co">#&gt;      chr8_KI270812v1_alt 282736 </span></span>
-<span id="cb10-308"><a href="#cb10-308"></a><span class="co">#&gt;      chr8_KI270813v1_alt 300230 </span></span>
-<span id="cb10-309"><a href="#cb10-309"></a><span class="co">#&gt;      chr8_KI270814v1_alt 141812 </span></span>
-<span id="cb10-310"><a href="#cb10-310"></a><span class="co">#&gt;      chr8_KI270815v1_alt 132244 </span></span>
-<span id="cb10-311"><a href="#cb10-311"></a><span class="co">#&gt;      chr8_KI270816v1_alt 305841 </span></span>
-<span id="cb10-312"><a href="#cb10-312"></a><span class="co">#&gt;      chr8_KI270817v1_alt 158983 </span></span>
-<span id="cb10-313"><a href="#cb10-313"></a><span class="co">#&gt;      chr8_KI270818v1_alt 145606 </span></span>
-<span id="cb10-314"><a href="#cb10-314"></a><span class="co">#&gt;      chr8_KI270819v1_alt 133535 </span></span>
-<span id="cb10-315"><a href="#cb10-315"></a><span class="co">#&gt;      chr8_KI270820v1_alt 36640 </span></span>
-<span id="cb10-316"><a href="#cb10-316"></a><span class="co">#&gt;      chr8_KI270821v1_alt 985506 </span></span>
-<span id="cb10-317"><a href="#cb10-317"></a><span class="co">#&gt;      chr8_KI270822v1_alt 624492 </span></span>
-<span id="cb10-318"><a href="#cb10-318"></a><span class="co">#&gt;      chr8_KI270900v1_alt 318687 </span></span>
-<span id="cb10-319"><a href="#cb10-319"></a><span class="co">#&gt;      chr8_KI270901v1_alt 136959 </span></span>
-<span id="cb10-320"><a href="#cb10-320"></a><span class="co">#&gt;      chr8_KI270926v1_alt 229282 </span></span>
-<span id="cb10-321"><a href="#cb10-321"></a><span class="co">#&gt;      chr9 138394717 </span></span>
-<span id="cb10-322"><a href="#cb10-322"></a><span class="co">#&gt;      chr9_GL383539v1_alt 162988 </span></span>
-<span id="cb10-323"><a href="#cb10-323"></a><span class="co">#&gt;      chr9_GL383540v1_alt 71551 </span></span>
-<span id="cb10-324"><a href="#cb10-324"></a><span class="co">#&gt;      chr9_GL383541v1_alt 171286 </span></span>
-<span id="cb10-325"><a href="#cb10-325"></a><span class="co">#&gt;      chr9_GL383542v1_alt 60032 </span></span>
-<span id="cb10-326"><a href="#cb10-326"></a><span class="co">#&gt;      chr9_KI270717v1_random 40062 </span></span>
-<span id="cb10-327"><a href="#cb10-327"></a><span class="co">#&gt;      chr9_KI270718v1_random 38054 </span></span>
-<span id="cb10-328"><a href="#cb10-328"></a><span class="co">#&gt;      chr9_KI270719v1_random 176845 </span></span>
-<span id="cb10-329"><a href="#cb10-329"></a><span class="co">#&gt;      chr9_KI270720v1_random 39050 </span></span>
-<span id="cb10-330"><a href="#cb10-330"></a><span class="co">#&gt;      chr9_KI270823v1_alt 439082 </span></span>
-<span id="cb10-331"><a href="#cb10-331"></a><span class="co">#&gt;      chrM 16569 </span></span>
-<span id="cb10-332"><a href="#cb10-332"></a><span class="co">#&gt;      chrUn_GL000195v1 182896 </span></span>
-<span id="cb10-333"><a href="#cb10-333"></a><span class="co">#&gt;      chrUn_GL000213v1 164239 </span></span>
-<span id="cb10-334"><a href="#cb10-334"></a><span class="co">#&gt;      chrUn_GL000214v1 137718 </span></span>
-<span id="cb10-335"><a href="#cb10-335"></a><span class="co">#&gt;      chrUn_GL000216v2 176608 </span></span>
-<span id="cb10-336"><a href="#cb10-336"></a><span class="co">#&gt;      chrUn_GL000218v1 161147 </span></span>
-<span id="cb10-337"><a href="#cb10-337"></a><span class="co">#&gt;      chrUn_GL000219v1 179198 </span></span>
-<span id="cb10-338"><a href="#cb10-338"></a><span class="co">#&gt;      chrUn_GL000220v1 161802 </span></span>
-<span id="cb10-339"><a href="#cb10-339"></a><span class="co">#&gt;      chrUn_GL000224v1 179693 </span></span>
-<span id="cb10-340"><a href="#cb10-340"></a><span class="co">#&gt;      chrUn_GL000226v1 15008 </span></span>
-<span id="cb10-341"><a href="#cb10-341"></a><span class="co">#&gt;      chrUn_KI270302v1 2274 </span></span>
-<span id="cb10-342"><a href="#cb10-342"></a><span class="co">#&gt;      chrUn_KI270303v1 1942 </span></span>
-<span id="cb10-343"><a href="#cb10-343"></a><span class="co">#&gt;      chrUn_KI270304v1 2165 </span></span>
-<span id="cb10-344"><a href="#cb10-344"></a><span class="co">#&gt;      chrUn_KI270305v1 1472 </span></span>
-<span id="cb10-345"><a href="#cb10-345"></a><span class="co">#&gt;      chrUn_KI270310v1 1201 </span></span>
-<span id="cb10-346"><a href="#cb10-346"></a><span class="co">#&gt;      chrUn_KI270311v1 12399 </span></span>
-<span id="cb10-347"><a href="#cb10-347"></a><span class="co">#&gt;      chrUn_KI270312v1 998 </span></span>
-<span id="cb10-348"><a href="#cb10-348"></a><span class="co">#&gt;      chrUn_KI270315v1 2276 </span></span>
-<span id="cb10-349"><a href="#cb10-349"></a><span class="co">#&gt;      chrUn_KI270316v1 1444 </span></span>
-<span id="cb10-350"><a href="#cb10-350"></a><span class="co">#&gt;      chrUn_KI270317v1 37690 </span></span>
-<span id="cb10-351"><a href="#cb10-351"></a><span class="co">#&gt;      chrUn_KI270320v1 4416 </span></span>
-<span id="cb10-352"><a href="#cb10-352"></a><span class="co">#&gt;      chrUn_KI270322v1 21476 </span></span>
-<span id="cb10-353"><a href="#cb10-353"></a><span class="co">#&gt;      chrUn_KI270329v1 1040 </span></span>
-<span id="cb10-354"><a href="#cb10-354"></a><span class="co">#&gt;      chrUn_KI270330v1 1652 </span></span>
-<span id="cb10-355"><a href="#cb10-355"></a><span class="co">#&gt;      chrUn_KI270333v1 2699 </span></span>
-<span id="cb10-356"><a href="#cb10-356"></a><span class="co">#&gt;      chrUn_KI270334v1 1368 </span></span>
-<span id="cb10-357"><a href="#cb10-357"></a><span class="co">#&gt;      chrUn_KI270335v1 1048 </span></span>
-<span id="cb10-358"><a href="#cb10-358"></a><span class="co">#&gt;      chrUn_KI270336v1 1026 </span></span>
-<span id="cb10-359"><a href="#cb10-359"></a><span class="co">#&gt;      chrUn_KI270337v1 1121 </span></span>
-<span id="cb10-360"><a href="#cb10-360"></a><span class="co">#&gt;      chrUn_KI270338v1 1428 </span></span>
-<span id="cb10-361"><a href="#cb10-361"></a><span class="co">#&gt;      chrUn_KI270340v1 1428 </span></span>
-<span id="cb10-362"><a href="#cb10-362"></a><span class="co">#&gt;      chrUn_KI270362v1 3530 </span></span>
-<span id="cb10-363"><a href="#cb10-363"></a><span class="co">#&gt;      chrUn_KI270363v1 1803 </span></span>
-<span id="cb10-364"><a href="#cb10-364"></a><span class="co">#&gt;      chrUn_KI270364v1 2855 </span></span>
-<span id="cb10-365"><a href="#cb10-365"></a><span class="co">#&gt;      chrUn_KI270366v1 8320 </span></span>
-<span id="cb10-366"><a href="#cb10-366"></a><span class="co">#&gt;      chrUn_KI270371v1 2805 </span></span>
-<span id="cb10-367"><a href="#cb10-367"></a><span class="co">#&gt;      chrUn_KI270372v1 1650 </span></span>
-<span id="cb10-368"><a href="#cb10-368"></a><span class="co">#&gt;      chrUn_KI270373v1 1451 </span></span>
-<span id="cb10-369"><a href="#cb10-369"></a><span class="co">#&gt;      chrUn_KI270374v1 2656 </span></span>
-<span id="cb10-370"><a href="#cb10-370"></a><span class="co">#&gt;      chrUn_KI270375v1 2378 </span></span>
-<span id="cb10-371"><a href="#cb10-371"></a><span class="co">#&gt;      chrUn_KI270376v1 1136 </span></span>
-<span id="cb10-372"><a href="#cb10-372"></a><span class="co">#&gt;      chrUn_KI270378v1 1048 </span></span>
-<span id="cb10-373"><a href="#cb10-373"></a><span class="co">#&gt;      chrUn_KI270379v1 1045 </span></span>
-<span id="cb10-374"><a href="#cb10-374"></a><span class="co">#&gt;      chrUn_KI270381v1 1930 </span></span>
-<span id="cb10-375"><a href="#cb10-375"></a><span class="co">#&gt;      chrUn_KI270382v1 4215 </span></span>
-<span id="cb10-376"><a href="#cb10-376"></a><span class="co">#&gt;      chrUn_KI270383v1 1750 </span></span>
-<span id="cb10-377"><a href="#cb10-377"></a><span class="co">#&gt;      chrUn_KI270384v1 1658 </span></span>
-<span id="cb10-378"><a href="#cb10-378"></a><span class="co">#&gt;      chrUn_KI270385v1 990 </span></span>
-<span id="cb10-379"><a href="#cb10-379"></a><span class="co">#&gt;      chrUn_KI270386v1 1788 </span></span>
-<span id="cb10-380"><a href="#cb10-380"></a><span class="co">#&gt;      chrUn_KI270387v1 1537 </span></span>
-<span id="cb10-381"><a href="#cb10-381"></a><span class="co">#&gt;      chrUn_KI270388v1 1216 </span></span>
-<span id="cb10-382"><a href="#cb10-382"></a><span class="co">#&gt;      chrUn_KI270389v1 1298 </span></span>
-<span id="cb10-383"><a href="#cb10-383"></a><span class="co">#&gt;      chrUn_KI270390v1 2387 </span></span>
-<span id="cb10-384"><a href="#cb10-384"></a><span class="co">#&gt;      chrUn_KI270391v1 1484 </span></span>
-<span id="cb10-385"><a href="#cb10-385"></a><span class="co">#&gt;      chrUn_KI270392v1 971 </span></span>
-<span id="cb10-386"><a href="#cb10-386"></a><span class="co">#&gt;      chrUn_KI270393v1 1308 </span></span>
-<span id="cb10-387"><a href="#cb10-387"></a><span class="co">#&gt;      chrUn_KI270394v1 970 </span></span>
-<span id="cb10-388"><a href="#cb10-388"></a><span class="co">#&gt;      chrUn_KI270395v1 1143 </span></span>
-<span id="cb10-389"><a href="#cb10-389"></a><span class="co">#&gt;      chrUn_KI270396v1 1880 </span></span>
-<span id="cb10-390"><a href="#cb10-390"></a><span class="co">#&gt;      chrUn_KI270411v1 2646 </span></span>
-<span id="cb10-391"><a href="#cb10-391"></a><span class="co">#&gt;      chrUn_KI270412v1 1179 </span></span>
-<span id="cb10-392"><a href="#cb10-392"></a><span class="co">#&gt;      chrUn_KI270414v1 2489 </span></span>
-<span id="cb10-393"><a href="#cb10-393"></a><span class="co">#&gt;      chrUn_KI270417v1 2043 </span></span>
-<span id="cb10-394"><a href="#cb10-394"></a><span class="co">#&gt;      chrUn_KI270418v1 2145 </span></span>
-<span id="cb10-395"><a href="#cb10-395"></a><span class="co">#&gt;      chrUn_KI270419v1 1029 </span></span>
-<span id="cb10-396"><a href="#cb10-396"></a><span class="co">#&gt;      chrUn_KI270420v1 2321 </span></span>
-<span id="cb10-397"><a href="#cb10-397"></a><span class="co">#&gt;      chrUn_KI270422v1 1445 </span></span>
-<span id="cb10-398"><a href="#cb10-398"></a><span class="co">#&gt;      chrUn_KI270423v1 981 </span></span>
-<span id="cb10-399"><a href="#cb10-399"></a><span class="co">#&gt;      chrUn_KI270424v1 2140 </span></span>
-<span id="cb10-400"><a href="#cb10-400"></a><span class="co">#&gt;      chrUn_KI270425v1 1884 </span></span>
-<span id="cb10-401"><a href="#cb10-401"></a><span class="co">#&gt;      chrUn_KI270429v1 1361 </span></span>
-<span id="cb10-402"><a href="#cb10-402"></a><span class="co">#&gt;      chrUn_KI270435v1 92983 </span></span>
-<span id="cb10-403"><a href="#cb10-403"></a><span class="co">#&gt;      chrUn_KI270438v1 112505 </span></span>
-<span id="cb10-404"><a href="#cb10-404"></a><span class="co">#&gt;      chrUn_KI270442v1 392061 </span></span>
-<span id="cb10-405"><a href="#cb10-405"></a><span class="co">#&gt;      chrUn_KI270448v1 7992 </span></span>
-<span id="cb10-406"><a href="#cb10-406"></a><span class="co">#&gt;      chrUn_KI270465v1 1774 </span></span>
-<span id="cb10-407"><a href="#cb10-407"></a><span class="co">#&gt;      chrUn_KI270466v1 1233 </span></span>
-<span id="cb10-408"><a href="#cb10-408"></a><span class="co">#&gt;      chrUn_KI270467v1 3920 </span></span>
-<span id="cb10-409"><a href="#cb10-409"></a><span class="co">#&gt;      chrUn_KI270468v1 4055 </span></span>
-<span id="cb10-410"><a href="#cb10-410"></a><span class="co">#&gt;      chrUn_KI270507v1 5353 </span></span>
-<span id="cb10-411"><a href="#cb10-411"></a><span class="co">#&gt;      chrUn_KI270508v1 1951 </span></span>
-<span id="cb10-412"><a href="#cb10-412"></a><span class="co">#&gt;      chrUn_KI270509v1 2318 </span></span>
-<span id="cb10-413"><a href="#cb10-413"></a><span class="co">#&gt;      chrUn_KI270510v1 2415 </span></span>
-<span id="cb10-414"><a href="#cb10-414"></a><span class="co">#&gt;      chrUn_KI270511v1 8127 </span></span>
-<span id="cb10-415"><a href="#cb10-415"></a><span class="co">#&gt;      chrUn_KI270512v1 22689 </span></span>
-<span id="cb10-416"><a href="#cb10-416"></a><span class="co">#&gt;      chrUn_KI270515v1 6361 </span></span>
-<span id="cb10-417"><a href="#cb10-417"></a><span class="co">#&gt;      chrUn_KI270516v1 1300 </span></span>
-<span id="cb10-418"><a href="#cb10-418"></a><span class="co">#&gt;      chrUn_KI270517v1 3253 </span></span>
-<span id="cb10-419"><a href="#cb10-419"></a><span class="co">#&gt;      chrUn_KI270518v1 2186 </span></span>
-<span id="cb10-420"><a href="#cb10-420"></a><span class="co">#&gt;      chrUn_KI270519v1 138126 </span></span>
-<span id="cb10-421"><a href="#cb10-421"></a><span class="co">#&gt;      chrUn_KI270521v1 7642 </span></span>
-<span id="cb10-422"><a href="#cb10-422"></a><span class="co">#&gt;      chrUn_KI270522v1 5674 </span></span>
-<span id="cb10-423"><a href="#cb10-423"></a><span class="co">#&gt;      chrUn_KI270528v1 2983 </span></span>
-<span id="cb10-424"><a href="#cb10-424"></a><span class="co">#&gt;      chrUn_KI270529v1 1899 </span></span>
-<span id="cb10-425"><a href="#cb10-425"></a><span class="co">#&gt;      chrUn_KI270530v1 2168 </span></span>
-<span id="cb10-426"><a href="#cb10-426"></a><span class="co">#&gt;      chrUn_KI270538v1 91309 </span></span>
-<span id="cb10-427"><a href="#cb10-427"></a><span class="co">#&gt;      chrUn_KI270539v1 993 </span></span>
-<span id="cb10-428"><a href="#cb10-428"></a><span class="co">#&gt;      chrUn_KI270544v1 1202 </span></span>
-<span id="cb10-429"><a href="#cb10-429"></a><span class="co">#&gt;      chrUn_KI270548v1 1599 </span></span>
-<span id="cb10-430"><a href="#cb10-430"></a><span class="co">#&gt;      chrUn_KI270579v1 31033 </span></span>
-<span id="cb10-431"><a href="#cb10-431"></a><span class="co">#&gt;      chrUn_KI270580v1 1553 </span></span>
-<span id="cb10-432"><a href="#cb10-432"></a><span class="co">#&gt;      chrUn_KI270581v1 7046 </span></span>
-<span id="cb10-433"><a href="#cb10-433"></a><span class="co">#&gt;      chrUn_KI270582v1 6504 </span></span>
-<span id="cb10-434"><a href="#cb10-434"></a><span class="co">#&gt;      chrUn_KI270583v1 1400 </span></span>
-<span id="cb10-435"><a href="#cb10-435"></a><span class="co">#&gt;      chrUn_KI270584v1 4513 </span></span>
-<span id="cb10-436"><a href="#cb10-436"></a><span class="co">#&gt;      chrUn_KI270587v1 2969 </span></span>
-<span id="cb10-437"><a href="#cb10-437"></a><span class="co">#&gt;      chrUn_KI270588v1 6158 </span></span>
-<span id="cb10-438"><a href="#cb10-438"></a><span class="co">#&gt;      chrUn_KI270589v1 44474 </span></span>
-<span id="cb10-439"><a href="#cb10-439"></a><span class="co">#&gt;      chrUn_KI270590v1 4685 </span></span>
-<span id="cb10-440"><a href="#cb10-440"></a><span class="co">#&gt;      chrUn_KI270591v1 5796 </span></span>
-<span id="cb10-441"><a href="#cb10-441"></a><span class="co">#&gt;      chrUn_KI270593v1 3041 </span></span>
-<span id="cb10-442"><a href="#cb10-442"></a><span class="co">#&gt;      chrUn_KI270741v1 157432 </span></span>
-<span id="cb10-443"><a href="#cb10-443"></a><span class="co">#&gt;      chrUn_KI270742v1 186739 </span></span>
-<span id="cb10-444"><a href="#cb10-444"></a><span class="co">#&gt;      chrUn_KI270743v1 210658 </span></span>
-<span id="cb10-445"><a href="#cb10-445"></a><span class="co">#&gt;      chrUn_KI270744v1 168472 </span></span>
-<span id="cb10-446"><a href="#cb10-446"></a><span class="co">#&gt;      chrUn_KI270745v1 41891 </span></span>
-<span id="cb10-447"><a href="#cb10-447"></a><span class="co">#&gt;      chrUn_KI270746v1 66486 </span></span>
-<span id="cb10-448"><a href="#cb10-448"></a><span class="co">#&gt;      chrUn_KI270747v1 198735 </span></span>
-<span id="cb10-449"><a href="#cb10-449"></a><span class="co">#&gt;      chrUn_KI270748v1 93321 </span></span>
-<span id="cb10-450"><a href="#cb10-450"></a><span class="co">#&gt;      chrUn_KI270749v1 158759 </span></span>
-<span id="cb10-451"><a href="#cb10-451"></a><span class="co">#&gt;      chrUn_KI270750v1 148850 </span></span>
-<span id="cb10-452"><a href="#cb10-452"></a><span class="co">#&gt;      chrUn_KI270751v1 150742 </span></span>
-<span id="cb10-453"><a href="#cb10-453"></a><span class="co">#&gt;      chrUn_KI270752v1 27745 </span></span>
-<span id="cb10-454"><a href="#cb10-454"></a><span class="co">#&gt;      chrUn_KI270753v1 62944 </span></span>
-<span id="cb10-455"><a href="#cb10-455"></a><span class="co">#&gt;      chrUn_KI270754v1 40191 </span></span>
-<span id="cb10-456"><a href="#cb10-456"></a><span class="co">#&gt;      chrUn_KI270755v1 36723 </span></span>
-<span id="cb10-457"><a href="#cb10-457"></a><span class="co">#&gt;      chrUn_KI270756v1 79590 </span></span>
-<span id="cb10-458"><a href="#cb10-458"></a><span class="co">#&gt;      chrUn_KI270757v1 71251 </span></span>
-<span id="cb10-459"><a href="#cb10-459"></a><span class="co">#&gt;      chrX 156040895 </span></span>
-<span id="cb10-460"><a href="#cb10-460"></a><span class="co">#&gt;      chrX_KI270880v1_alt 284869 </span></span>
-<span id="cb10-461"><a href="#cb10-461"></a><span class="co">#&gt;      chrX_KI270881v1_alt 144206 </span></span>
-<span id="cb10-462"><a href="#cb10-462"></a><span class="co">#&gt;      chrX_KI270913v1_alt 274009 </span></span>
-<span id="cb10-463"><a href="#cb10-463"></a><span class="co">#&gt;      chrY 57227415 </span></span>
-<span id="cb10-464"><a href="#cb10-464"></a><span class="co">#&gt;      chrY_KI270740v1_random 37240 </span></span>
-<span id="cb10-465"><a href="#cb10-465"></a><span class="co">#&gt;  basesCovered: 5,010,318 </span></span>
-<span id="cb10-466"><a href="#cb10-466"></a><span class="co">#&gt;  mean:  1.187913 </span></span>
-<span id="cb10-467"><a href="#cb10-467"></a><span class="co">#&gt;  min:  1 </span></span>
-<span id="cb10-468"><a href="#cb10-468"></a><span class="co">#&gt;  max:  3034 </span></span>
-<span id="cb10-469"><a href="#cb10-469"></a><span class="co">#&gt;  std:  5.843396</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="kw">print.bigWig</span>(bw)</span></code></pre></div>
+<ul>
+<li>arguments
+<ul>
+<li><code>bw</code> is the <code>R</code> pointer created in <code>load.bigWig</code></li>
+</ul></li>
+</ul>
+<pre><code>#&gt; bigWig
+#&gt;  version: 4
+#&gt;  isCompressed TRUE
+#&gt;  isSwapped FALSE
+#&gt;  primaryDataSize: 11,243,315
+#&gt;  primaryIndexSize: 176,800
+#&gt;  zoomLevels: 7
+#&gt;  chromCount: 455
+#&gt;      chr1 248956422 
+#&gt;      chr10 133797422 
+#&gt;      chr10_GL383545v1_alt 179254 
+#&gt;      chr10_GL383546v1_alt 309802 
+#&gt;      chr10_KI270824v1_alt 181496
+#&gt;      ...
+#&gt;      chrX 156040895 
+#&gt;      chrX_KI270880v1_alt 284869 
+#&gt;      chrX_KI270881v1_alt 144206 
+#&gt;      chrX_KI270913v1_alt 274009 
+#&gt;      chrY 57227415 
+#&gt;      chrY_KI270740v1_random 37240
+#&gt;  basesCovered: 5,010,318
+#&gt;  mean:  1.187913
+#&gt;  min:  1
+#&gt;  max:  3034
+#&gt;  std:  5.843396</code></pre>
+</div>
+</div>
+<div id="bpquery.bigwig" class="section level2">
+<h2>bpQuery.bigwig</h2>
+<p>This set of functions operates on counts of base pairs</p>
+<div id="region.bpquery.bigwig" class="section level3">
+<h3>region.bpQuery.bigwig</h3>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="kw">region.bpQuery.bigWig</span>(bw, chrom, start, end,</span>
+<span id="cb17-2"><a href="#cb17-2"></a>                       <span class="dt">op =</span> <span class="st">&quot;sum&quot;</span>, <span class="dt">abs.value =</span> <span class="ot">FALSE</span></span>
+<span id="cb17-3"><a href="#cb17-3"></a>                      <span class="dt">bwMap =</span> <span class="ot">NULL</span>)</span></code></pre></div>
+<ul>
+<li>arguments
+<ul>
+<li><code>bw</code> is the <code>R</code> pointer created in <code>load.bigWig</code></li>
+<li><code>chrom</code> is a string referring to what chromosome is referenced</li>
+<li><code>start</code> is an integer value designation the starting position</li>
+<li><code>end</code> is an integer value designation the ending position</li>
+<li><code>op</code> is a string representing the operation to perform on the step.
+<ul>
+<li><code>sum</code> adds all the counts</li>
+<li><code>avg</code> averages the counts</li>
+<li><code>min</code> finds the smallest count</li>
+<li><code>max</code> finds the largest count</li>
+</ul></li>
+<li><code>abs.value</code> is a logical argument which determines if the absolute value of the input is performed before the <code>op</code>.</li>
+</ul></li>
+</ul>
+<p><code>region.bpQuery.bigWig</code> is used for counting operations on a selected chromosome and range. This allows you to find out basic information on a specific query. Starting with a specific query,</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="kw">query.bigWig</span>(bw, <span class="dt">chrom=</span><span class="st">&#39;chr2&#39;</span>, <span class="dt">start=</span><span class="dv">1</span>, <span class="dt">end=</span><span class="dv">30000</span>)</span>
+<span id="cb18-2"><a href="#cb18-2"></a><span class="co">#&gt;      start   end value</span></span>
+<span id="cb18-3"><a href="#cb18-3"></a><span class="co">#&gt; [1,] 12336 12337     1</span></span>
+<span id="cb18-4"><a href="#cb18-4"></a><span class="co">#&gt; [2,] 13279 13280     1</span></span>
+<span id="cb18-5"><a href="#cb18-5"></a><span class="co">#&gt; [3,] 29061 29062     1</span></span>
+<span id="cb18-6"><a href="#cb18-6"></a><span class="co">#&gt; [4,] 29148 29149     1</span></span></code></pre></div>
+<p>Operations To find how many instances there are where there is a ‘chr2’ in the bigWig</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="kw">region.bpQuery.bigWig</span>(bw,<span class="dt">chrom=</span><span class="st">&#39;chr2&#39;</span>,<span class="dt">start=</span><span class="dv">1</span>, <span class="dt">end=</span><span class="dv">200000</span>, <span class="dt">op=</span><span class="st">&#39;sum&#39;</span>)</span>
+<span id="cb19-2"><a href="#cb19-2"></a><span class="co">#&gt; [1] 25</span></span></code></pre></div>
+<p>If you want to find the highest number of instances of chr2</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="kw">region.bpQuery.bigWig</span>(bw,<span class="dt">chrom=</span><span class="st">&#39;chr2&#39;</span>,<span class="dt">start=</span><span class="dv">1</span>, <span class="dt">end=</span><span class="dv">200000</span>, <span class="dt">op=</span><span class="st">&#39;max&#39;</span>)</span>
+<span id="cb20-2"><a href="#cb20-2"></a><span class="co">#&gt; [1] 1</span></span></code></pre></div>
+<p>To find the lowest number of instances</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="kw">region.bpQuery.bigWig</span>(bw,<span class="dt">chrom=</span><span class="st">&#39;chr2&#39;</span>,<span class="dt">start=</span><span class="dv">1</span>, <span class="dt">end=</span><span class="dv">200000</span>, <span class="dt">op=</span><span class="st">&#39;min&#39;</span>)</span>
+<span id="cb21-2"><a href="#cb21-2"></a><span class="co">#&gt; [1] 1</span></span></code></pre></div>
+<p>To find the average</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a><span class="kw">region.bpQuery.bigWig</span>(bw,<span class="dt">chrom=</span><span class="st">&#39;chr2&#39;</span>,<span class="dt">start=</span><span class="dv">1</span>, <span class="dt">end=</span><span class="dv">200000</span>, <span class="dt">op=</span><span class="st">&#39;avg&#39;</span>)</span>
+<span id="cb22-2"><a href="#cb22-2"></a><span class="co">#&gt; [1] 0.0001250006</span></span></code></pre></div>
+<p>sometimes the bigWig will have negative values. To keep these values in the counts the <code>abs.value=TRUE</code> option can be used.</p>
+</div>
+<div id="bed.region.bpquery.bigwig" class="section level3">
+<h3>bed.region.bpQuery.bigwig</h3>
+<p>This function is similar to <code>region.bpQuery.bigWig</code> except that when defining the areas we want to examine is defined in a bed file rather than <code>chrom</code>, <code>start</code>, and <code>end</code>.</p>
+<p>The source of the bed file can be something created by hand or previous identified regions from other experiments. The basics of the bed is that it’s in a R data frame.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>bed=<span class="kw">data.frame</span>(<span class="st">&#39;chr1&#39;</span>,<span class="dv">10496</span>,<span class="dv">10497</span>)</span>
+<span id="cb23-2"><a href="#cb23-2"></a><span class="co">#set column headers</span></span>
+<span id="cb23-3"><a href="#cb23-3"></a><span class="kw">colnames</span>(bed)=<span class="kw">c</span>(<span class="st">&#39;chrom&#39;</span>,<span class="st">&#39;start&#39;</span>, <span class="st">&#39;end&#39;</span>)</span></code></pre></div>
+<p>Now this is for a single factor in R. If you ever want to add different factors you’ll need to add levels</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a><span class="kw">levels</span>(bed<span class="op">$</span>chrom)=<span class="kw">c</span>(<span class="st">&#39;chr1&#39;</span>, <span class="st">&#39;chr2&#39;</span>)</span></code></pre></div>
+<p>Take a look at how the data.frame is structured</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="kw">dim</span>(bed)</span>
+<span id="cb25-2"><a href="#cb25-2"></a><span class="co">#&gt; [1] 1 3</span></span>
+<span id="cb25-3"><a href="#cb25-3"></a><span class="kw">attributes</span>(bed)</span>
+<span id="cb25-4"><a href="#cb25-4"></a><span class="co">#&gt; $names</span></span>
+<span id="cb25-5"><a href="#cb25-5"></a><span class="co">#&gt; [1] &quot;chrom&quot; &quot;start&quot; &quot;end&quot;  </span></span>
+<span id="cb25-6"><a href="#cb25-6"></a><span class="co">#&gt; </span></span>
+<span id="cb25-7"><a href="#cb25-7"></a><span class="co">#&gt; $row.names</span></span>
+<span id="cb25-8"><a href="#cb25-8"></a><span class="co">#&gt; [1] 1</span></span>
+<span id="cb25-9"><a href="#cb25-9"></a><span class="co">#&gt; </span></span>
+<span id="cb25-10"><a href="#cb25-10"></a><span class="co">#&gt; $class</span></span>
+<span id="cb25-11"><a href="#cb25-11"></a><span class="co">#&gt; [1] &quot;data.frame&quot;</span></span>
+<span id="cb25-12"><a href="#cb25-12"></a>bed</span>
+<span id="cb25-13"><a href="#cb25-13"></a><span class="co">#&gt;   chrom start   end</span></span>
+<span id="cb25-14"><a href="#cb25-14"></a><span class="co">#&gt; 1  chr1 10496 10497</span></span></code></pre></div>
+<p><code>dim</code> returns the size of the matrix [1 row, 3 columns]. while <code>attributes</code> returns information on column names, row names and class type.</p>
+<p>You can take this bed file and run it through the bigWig file to see what parts overlap</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a><span class="co"># note: If you leave out op=&#39;&#39;, it will default to op=&#39;sum&#39;</span></span>
+<span id="cb26-2"><a href="#cb26-2"></a><span class="kw">bed.region.bpQuery.bigWig</span>(bw, bed)</span>
+<span id="cb26-3"><a href="#cb26-3"></a><span class="co">#&gt; [1] 1</span></span></code></pre></div>
+<p>Now adding a few other areas to the data frame</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>bed=<span class="kw">rbind</span>(bed, <span class="kw">c</span>(<span class="st">&#39;chr2&#39;</span>, <span class="dv">10500</span>,<span class="dv">10501</span>))</span></code></pre></div>
+<p>In the original query, this region is occupied by a <code>chr1</code> and since the bed file refers to a <code>chr2</code> the sum should be the same because there is no overlap.Then if you rerun</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a><span class="kw">bed.region.bpQuery.bigWig</span>(bw, bed)</span>
+<span id="cb28-2"><a href="#cb28-2"></a><span class="co">#&gt; [1] 1 0</span></span></code></pre></div>
+<p>We see that the then returned values are 1 and 0. This is because the first row of the bed file overlaps the bigWig, but the second row does not overlap.</p>
+<p>Now adding a third row to the bed file that will overlap a larger range of the bigWig and rerun</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>bed2=<span class="kw">rbind</span>(bed, <span class="kw">c</span>(<span class="st">&#39;chr1&#39;</span>, <span class="dv">13000</span>,<span class="dv">14001</span>))</span>
+<span id="cb29-2"><a href="#cb29-2"></a><span class="kw">bed.region.bpQuery.bigWig</span>(bw, bed2)</span>
+<span id="cb29-3"><a href="#cb29-3"></a><span class="co">#&gt; [1]  1  0 11</span></span></code></pre></div>
+<p>The returned values are the sums of the counts in those regions.</p>
+</div>
+<div id="step.bpquery.bigwig" class="section level3">
+<h3>step.bpQuery.bigWig()</h3>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a><span class="kw">step.bpQuery.bigWig</span>(bw, chrom, start, end, step,</span>
+<span id="cb30-2"><a href="#cb30-2"></a>                    <span class="dt">strand =</span> <span class="ot">NA</span>, <span class="dt">op =</span> <span class="st">&quot;sum&quot;</span>, <span class="dt">abs.value =</span> <span class="ot">FALSE</span>, <span class="dt">gap.value =</span> <span class="dv">0</span>,</span>
+<span id="cb30-3"><a href="#cb30-3"></a>                    <span class="dt">bwMap =</span> <span class="ot">NULL</span>, <span class="dt">with.attributes =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
+<ul>
+<li>arguments
+<ul>
+<li><code>bw</code> is the <code>R</code> pointer created in <code>load.bigWig</code></li>
+<li><code>chrom</code> is a string referring to what chromosome is referenced</li>
+<li><code>start</code> is an integer value designation the starting position</li>
+<li><code>end</code> is an integer value designation the ending position</li>
+<li><code>op</code> is a string representing the operation to perform on the step.
+<ul>
+<li><code>sum</code> adds all the counts</li>
+<li><code>avg</code> averages the counts</li>
+<li><code>min</code> finds the smallest count</li>
+<li><code>max</code> finds the largest count</li>
+</ul></li>
+<li><code>abs.value</code> is a logical argument which determines if the absolute value of the input is performed before the <code>op</code>.</li>
+<li><code>gap.value</code> is an integer value that replaces areas that have no overlaps</li>
+<li><code>with.attributes</code> is a logical argument that determines if the results are returned annotated with their source components and/or step size.</li>
+</ul></li>
+</ul>
+<p>The Step function will run through the range provide breaking it up into equal size steps as defined by <code>step =</code>. The key here is that the length of the range [<code>end</code>-<code>start</code>] has to be a multiple of the step. For example if <code>end=21</code> and <code>start=1</code>, The length of the range is 20. This allows for <code>step = [1,2,4,5,10,20]</code>. The return is the value of the operation over that step. So if <code>step =1</code> and <code>op = &#39;min&#39;</code>, then the return would be 20 minimums.</p>
+<p>Now if <code>step = 5</code> and <code>op = &#39;max&#39;</code>, the return will be a 4 element array of the maximum value in the step.</p>
+<p>Let’s take a look over a 20000 interval <code>start=1</code>, <code>end=20001</code> and a <code>step=1000</code>.</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a><span class="kw">step.bpQuery.bigWig</span>(bw,<span class="dt">chrom=</span><span class="st">&#39;chr1&#39;</span>,<span class="dt">start=</span><span class="dv">1</span>, <span class="dt">end=</span><span class="dv">20001</span>, <span class="dt">op=</span><span class="st">&#39;sum&#39;</span>, <span class="dt">step=</span><span class="dv">1000</span>)</span>
+<span id="cb31-2"><a href="#cb31-2"></a><span class="co">#&gt;  [1]  0  0  0  0  0  0  0  0  0  0 10  5 11 11  1  1  2  0  4  3</span></span>
+<span id="cb31-3"><a href="#cb31-3"></a><span class="co">#&gt; attr(,&quot;chrom&quot;)</span></span>
+<span id="cb31-4"><a href="#cb31-4"></a><span class="co">#&gt; [1] &quot;chr1&quot;</span></span>
+<span id="cb31-5"><a href="#cb31-5"></a><span class="co">#&gt; attr(,&quot;start&quot;)</span></span>
+<span id="cb31-6"><a href="#cb31-6"></a><span class="co">#&gt; [1] 1</span></span>
+<span id="cb31-7"><a href="#cb31-7"></a><span class="co">#&gt; attr(,&quot;end&quot;)</span></span>
+<span id="cb31-8"><a href="#cb31-8"></a><span class="co">#&gt; [1] 20001</span></span>
+<span id="cb31-9"><a href="#cb31-9"></a><span class="co">#&gt; attr(,&quot;step&quot;)</span></span>
+<span id="cb31-10"><a href="#cb31-10"></a><span class="co">#&gt; [1] 1000</span></span></code></pre></div>
+<p>The result is a 20 element array of the sum of all the counts in the interval. Notice that the steps that have no counts are zero. If we needed to fill these values in with a specific number like 10, we use <code>gap.value=10</code></p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a><span class="kw">step.bpQuery.bigWig</span>(bw,<span class="dt">chrom=</span><span class="st">&#39;chr1&#39;</span>,<span class="dt">start=</span><span class="dv">1</span>, <span class="dt">end=</span><span class="dv">20001</span>, <span class="dt">op=</span><span class="st">&#39;sum&#39;</span>, <span class="dt">step=</span><span class="dv">10000</span>, <span class="dt">gap.value=</span><span class="dv">10</span>)</span>
+<span id="cb32-2"><a href="#cb32-2"></a><span class="co">#&gt; [1] 10 48</span></span>
+<span id="cb32-3"><a href="#cb32-3"></a><span class="co">#&gt; attr(,&quot;chrom&quot;)</span></span>
+<span id="cb32-4"><a href="#cb32-4"></a><span class="co">#&gt; [1] &quot;chr1&quot;</span></span>
+<span id="cb32-5"><a href="#cb32-5"></a><span class="co">#&gt; attr(,&quot;start&quot;)</span></span>
+<span id="cb32-6"><a href="#cb32-6"></a><span class="co">#&gt; [1] 1</span></span>
+<span id="cb32-7"><a href="#cb32-7"></a><span class="co">#&gt; attr(,&quot;end&quot;)</span></span>
+<span id="cb32-8"><a href="#cb32-8"></a><span class="co">#&gt; [1] 20001</span></span>
+<span id="cb32-9"><a href="#cb32-9"></a><span class="co">#&gt; attr(,&quot;step&quot;)</span></span>
+<span id="cb32-10"><a href="#cb32-10"></a><span class="co">#&gt; [1] 10000</span></span></code></pre></div>
+</div>
+<div id="bed.step.bpquery.bigwig" class="section level3">
+<h3>bed.step.bpQuery.bigWig()</h3>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a><span class="kw">step.bpQuery.bigWig</span>(bw, chrom, start, end, step,</span>
+<span id="cb33-2"><a href="#cb33-2"></a>                    <span class="dt">strand =</span> <span class="ot">NA</span>, <span class="dt">op =</span> <span class="st">&quot;sum&quot;</span>, <span class="dt">abs.value =</span> <span class="ot">FALSE</span>, <span class="dt">gap.value =</span> <span class="dv">0</span>,</span>
+<span id="cb33-3"><a href="#cb33-3"></a>                    <span class="dt">bwMap =</span> <span class="ot">NULL</span>, <span class="dt">with.attributes =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
+<ul>
+<li>arguments
+<ul>
+<li><code>bw</code> is the <code>R</code> pointer created in <code>load.bigWig</code></li>
+<li><code>bed</code> is a dataframe structured like a bed file with columns for <code>chrom</code>, <code>start</code> and <code>end</code></li>
+<li><code>chrom</code> is a string referring to what chromosome is referenced</li>
+<li><code>start</code> is an integer value designation the starting position</li>
+<li><code>end</code> is an integer value designation the ending position</li>
+<li><code>op</code> is a string representing the operation to perform on the step.
+<ul>
+<li><code>sum</code> adds all the counts</li>
+<li><code>avg</code> averages the counts</li>
+<li><code>min</code> finds the smallest count</li>
+<li><code>max</code> finds the largest count</li>
+</ul></li>
+<li><code>abs.value</code> is a logical argument which determines if the absolute value of the input is performed before the <code>op</code>.</li>
+<li><code>gap.value</code> is an integer value that replaces areas that have no overlaps</li>
+<li><code>with.attributes</code> is a logical argument that determines if the results are returned annotated with their source components and/or step size. This is similar to <code>bed.region.bigWig()</code>, where you can add a bed of regions that you are interested in.</li>
+</ul></li>
+</ul>
+</div>
+<div id="bed6s" class="section level3">
+<h3>bed6s</h3>
+<p><code>bed.region.bpQuery.bigWig()</code> and <code>bed.step.bpQuery.bigWig()</code> have counterparts that can take a bed6 file. The bed6 file is similar to a bed file except it has 3 more columns of data.</p>
+<p>Remember the standard bed file has <code>chrom</code>, <code>start</code> and <code>end</code>. The bed6 adds <code>name</code>, <code>score</code>, <code>strand</code> columns to its structure. For these functions, we only need the added <code>strand</code> column. However this column needs to be in the 6th position. Meaning even though <code>name</code> and <code>score</code> columns exist in the dataframe, they can be populated with nulls. You could populate it with identifying information, but the function essentially ignores them. The <code>strand</code> column requires either a <code>+</code> or <code>-</code> to denote the plus or minus strand.</p>
+<p>Here is an example</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>bed6=<span class="kw">data.frame</span>(<span class="st">&#39;chr1&#39;</span>,<span class="dv">1</span>,<span class="dv">100000</span>,<span class="st">&#39;&#39;</span>,<span class="st">&#39;&#39;</span>,<span class="st">&#39;+&#39;</span>)</span>
+<span id="cb34-2"><a href="#cb34-2"></a>colnames=<span class="kw">c</span>(<span class="st">&#39;chrom&#39;</span>, <span class="st">&#39;start&#39;</span>, <span class="st">&#39;end&#39;</span>, <span class="st">&#39;name&#39;</span>, <span class="st">&#39;score&#39;</span>, <span class="st">&#39;strand&#39;</span>)</span></code></pre></div>
+<p>This introduces the biological concept of plus and minus strands. This refers to the situation where the biological experiment returns the sense [plus strand] and it’s complimentary RNA strand, antisense [minus strand]</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a><span class="kw">bed6.region.bpQuery.bigWig</span>(bw.plus, bw.minus, bed6,</span>
+<span id="cb35-2"><a href="#cb35-2"></a>                           <span class="dt">op =</span> <span class="st">&quot;sum&quot;</span>, <span class="dt">abs.value =</span> <span class="ot">FALSE</span>, <span class="dt">gap.value =</span> <span class="dv">0</span>, <span class="dt">bwMap =</span> <span class="ot">NULL</span>)</span></code></pre></div>
+<ul>
+<li>arguments
+<ul>
+<li><code>bw.plus</code> is the <code>R</code> pointer created in <code>load.bigWig</code> and refers to the plus strand</li>
+<li><code>bw.minus</code> is the <code>R</code> pointer created in <code>load.bigWig</code> and refers to the minus strand</li>
+<li><code>chrom</code> is a string referring to what chromosome is referenced</li>
+<li><code>start</code> is an integer value designation the starting position</li>
+<li><code>end</code> is an integer value designation the ending position</li>
+<li><code>op</code> is a string representing the operation to perform on the step.
+<ul>
+<li><code>sum</code> adds all the counts</li>
+<li><code>avg</code> averages the counts</li>
+<li><code>min</code> finds the smallest count</li>
+<li><code>max</code> finds the largest count</li>
+</ul></li>
+<li><code>abs.value</code> is a logical argument which determines if the absolute value of the input is performed before the <code>op</code>.</li>
+<li><code>gap.value</code> is an integer value that replaces areas that have no overlaps</li>
+<li><code>with.attributes</code> is a logical argument that determines if the results are returned annotated with their source components and/or step size.</li>
+</ul></li>
+</ul>
+<p>Let’s look at an example.</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a>bw.plus =<span class="st"> </span><span class="kw">load.bigWig</span>(<span class="kw">paste0</span>(dtDir, dtFn))</span></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a></span>
+<span id="cb37-2"><a href="#cb37-2"></a><span class="kw">bed6.step.bpQuery.bigWig</span>(bw.plus, bw.minus, bed6, step,</span>
+<span id="cb37-3"><a href="#cb37-3"></a>                         <span class="dt">op =</span> <span class="st">&quot;sum&quot;</span>, <span class="dt">abs.value =</span> <span class="ot">FALSE</span>, <span class="dt">gap.value =</span> <span class="dv">0</span>,</span>
+<span id="cb37-4"><a href="#cb37-4"></a>                         <span class="dt">bwMap =</span> <span class="ot">NULL</span>, <span class="dt">with.attributes =</span> <span class="ot">TRUE</span>, <span class="dt">as.matrix =</span> <span class="ot">FALSE</span>,</span>
+<span id="cb37-5"><a href="#cb37-5"></a>                         <span class="dt">follow.strand =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
+<ul>
+<li>arguments
+<ul>
+<li><code>bw.plus</code> is the <code>R</code> pointer created in <code>load.bigWig</code> and refers to the plus strand</li>
+<li><code>bw.minus</code> is the <code>R</code> pointer created in <code>load.bigWig</code> and refers to the minus strand</li>
+<li><code>chrom</code> is a string referring to what chromosome is referenced</li>
+<li><code>start</code> is an integer value designation the starting position</li>
+<li><code>end</code> is an integer value designation the ending position</li>
+<li><code>op</code> is a string representing the operation to perform on the step.
+<ul>
+<li><code>sum</code> adds all the counts</li>
+<li><code>avg</code> averages the counts</li>
+<li><code>min</code> finds the smallest count</li>
+<li><code>max</code> finds the largest count</li>
+</ul></li>
+<li><code>abs.value</code> is a logical argument which determines if the absolute value of the input is performed before the <code>op</code>.</li>
+<li><code>gap.value</code> is an integer value that replaces areas that have no overlaps</li>
+<li><code>with.attributes</code> is a logical argument that determines if the results are returned annotated with their source components and/or step size.</li>
+</ul></li>
+</ul>
 </div>
 </div>
 </div>

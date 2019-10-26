@@ -469,14 +469,17 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 #&gt;  std:  5.843396</code></pre>
 </div>
 </div>
-<div id="bpquery.bigwig" class="section level2">
-<h2>bpQuery.bigwig</h2>
-<p>This set of functions operates on counts of base pairs</p>
-<div id="region.bpquery.bigwig" class="section level3">
-<h3>region.bpQuery.bigwig</h3>
+<div id="region" class="section level2">
+<h2>Region</h2>
+<p>The following sections group <code>bpQuery</code> and <code>probeQuery</code> functions together because they operate the same except on how they calculate the average.</p>
+<div id="region.xxx.bigwig" class="section level3">
+<h3>region.xxx.bigwig</h3>
+<p>This set of functions takes a region defined by <code>chrom</code>, <code>start</code> and <code>end</code> and returns the result of the operation on the counts.</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="kw">region.bpQuery.bigWig</span>(bw, chrom, start, end,</span>
 <span id="cb17-2"><a href="#cb17-2"></a>                       <span class="dt">op =</span> <span class="st">&quot;sum&quot;</span>, <span class="dt">abs.value =</span> <span class="ot">FALSE</span></span>
-<span id="cb17-3"><a href="#cb17-3"></a>                      <span class="dt">bwMap =</span> <span class="ot">NULL</span>)</span></code></pre></div>
+<span id="cb17-3"><a href="#cb17-3"></a>                      <span class="dt">bwMap =</span> <span class="ot">NULL</span>)</span>
+<span id="cb17-4"><a href="#cb17-4"></a><span class="kw">region.probeQuery.bigWig</span>(bw, chrom, start, end,</span>
+<span id="cb17-5"><a href="#cb17-5"></a>                      <span class="dt">op =</span> <span class="st">&quot;wavg&quot;</span>, <span class="dt">abs.value =</span> <span class="ot">FALSE</span>, <span class="dt">gap.value =</span> <span class="ot">NA</span>)</span></code></pre></div>
 <ul>
 <li>arguments
 <ul>
@@ -492,75 +495,143 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <li><code>max</code> finds the largest count</li>
 </ul></li>
 <li><code>abs.value</code> is a logical argument which determines if the absolute value of the input is performed before the <code>op</code>.</li>
+<li><code>bwMap</code> is a bigWig file of areas that cannot be mapped for a reason</li>
 </ul></li>
 </ul>
-<p><code>region.bpQuery.bigWig</code> is used for counting operations on a selected chromosome and range. This allows you to find out basic information on a specific query. Starting with a specific query,</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="kw">query.bigWig</span>(bw, <span class="dt">chrom=</span><span class="st">&#39;chr2&#39;</span>, <span class="dt">start=</span><span class="dv">1</span>, <span class="dt">end=</span><span class="dv">30000</span>)</span>
-<span id="cb18-2"><a href="#cb18-2"></a><span class="co">#&gt;      start   end value</span></span>
-<span id="cb18-3"><a href="#cb18-3"></a><span class="co">#&gt; [1,] 12336 12337     1</span></span>
-<span id="cb18-4"><a href="#cb18-4"></a><span class="co">#&gt; [2,] 13279 13280     1</span></span>
-<span id="cb18-5"><a href="#cb18-5"></a><span class="co">#&gt; [3,] 29061 29062     1</span></span>
-<span id="cb18-6"><a href="#cb18-6"></a><span class="co">#&gt; [4,] 29148 29149     1</span></span></code></pre></div>
+<p>This set of functions, <code>region.xxx.bigWig</code>, takes a region defined by <code>chrom</code>, <code>start</code> and <code>end</code> and returns the result of the operation on the counts. This allows you to find out basic information on a specific query. Starting with a specific query,</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="kw">query.bigWig</span>(bw, <span class="dt">chrom=</span><span class="st">&#39;chr2&#39;</span>, <span class="dt">start=</span><span class="dv">229990</span>, <span class="dt">end=</span><span class="dv">230235</span>)</span>
+<span id="cb18-2"><a href="#cb18-2"></a><span class="co">#&gt;       start    end value</span></span>
+<span id="cb18-3"><a href="#cb18-3"></a><span class="co">#&gt; [1,] 229991 229992     1</span></span>
+<span id="cb18-4"><a href="#cb18-4"></a><span class="co">#&gt; [2,] 230002 230003     2</span></span>
+<span id="cb18-5"><a href="#cb18-5"></a><span class="co">#&gt; [3,] 230077 230078     1</span></span>
+<span id="cb18-6"><a href="#cb18-6"></a><span class="co">#&gt; [4,] 230082 230083     1</span></span>
+<span id="cb18-7"><a href="#cb18-7"></a><span class="co">#&gt; [5,] 230113 230114     1</span></span>
+<span id="cb18-8"><a href="#cb18-8"></a><span class="co">#&gt; [6,] 230132 230133     1</span></span>
+<span id="cb18-9"><a href="#cb18-9"></a><span class="co">#&gt; [7,] 230146 230147     2</span></span></code></pre></div>
 <p>Operations To find how many instances there are where there is a ‘chr2’ in the bigWig</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="kw">region.bpQuery.bigWig</span>(bw,<span class="dt">chrom=</span><span class="st">&#39;chr2&#39;</span>,<span class="dt">start=</span><span class="dv">1</span>, <span class="dt">end=</span><span class="dv">200000</span>, <span class="dt">op=</span><span class="st">&#39;sum&#39;</span>)</span>
-<span id="cb19-2"><a href="#cb19-2"></a><span class="co">#&gt; [1] 25</span></span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="kw">region.bpQuery.bigWig</span>(bw,<span class="dt">chrom=</span><span class="st">&#39;chr2&#39;</span>,<span class="dt">start=</span><span class="dv">229990</span>, <span class="dt">end=</span><span class="dv">230235</span>, <span class="dt">op=</span><span class="st">&#39;sum&#39;</span>)</span>
+<span id="cb19-2"><a href="#cb19-2"></a><span class="co">#&gt; [1] 9</span></span>
+<span id="cb19-3"><a href="#cb19-3"></a><span class="kw">region.probeQuery.bigWig</span>(bw,<span class="dt">chrom=</span><span class="st">&#39;chr2&#39;</span>,<span class="dt">start=</span><span class="dv">229990</span>, <span class="dt">end=</span><span class="dv">230235</span>, <span class="dt">op=</span><span class="st">&#39;sum&#39;</span>)</span>
+<span id="cb19-4"><a href="#cb19-4"></a><span class="co">#&gt; [1] 9</span></span></code></pre></div>
 <p>If you want to find the highest number of instances of chr2</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="kw">region.bpQuery.bigWig</span>(bw,<span class="dt">chrom=</span><span class="st">&#39;chr2&#39;</span>,<span class="dt">start=</span><span class="dv">1</span>, <span class="dt">end=</span><span class="dv">200000</span>, <span class="dt">op=</span><span class="st">&#39;max&#39;</span>)</span>
-<span id="cb20-2"><a href="#cb20-2"></a><span class="co">#&gt; [1] 1</span></span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="kw">region.bpQuery.bigWig</span>(bw,<span class="dt">chrom=</span><span class="st">&#39;chr2&#39;</span>,<span class="dt">start=</span><span class="dv">229990</span>, <span class="dt">end=</span><span class="dv">230235</span>, <span class="dt">op=</span><span class="st">&#39;max&#39;</span>)</span>
+<span id="cb20-2"><a href="#cb20-2"></a><span class="co">#&gt; [1] 2</span></span>
+<span id="cb20-3"><a href="#cb20-3"></a><span class="kw">region.probeQuery.bigWig</span>(bw,<span class="dt">chrom=</span><span class="st">&#39;chr2&#39;</span>,<span class="dt">start=</span><span class="dv">229990</span>, <span class="dt">end=</span><span class="dv">230235</span>, <span class="dt">op=</span><span class="st">&#39;max&#39;</span>)</span>
+<span id="cb20-4"><a href="#cb20-4"></a><span class="co">#&gt; [1] 2</span></span></code></pre></div>
 <p>To find the lowest number of instances</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="kw">region.bpQuery.bigWig</span>(bw,<span class="dt">chrom=</span><span class="st">&#39;chr2&#39;</span>,<span class="dt">start=</span><span class="dv">1</span>, <span class="dt">end=</span><span class="dv">200000</span>, <span class="dt">op=</span><span class="st">&#39;min&#39;</span>)</span>
-<span id="cb21-2"><a href="#cb21-2"></a><span class="co">#&gt; [1] 1</span></span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="kw">region.bpQuery.bigWig</span>(bw,<span class="dt">chrom=</span><span class="st">&#39;chr2&#39;</span>,<span class="dt">start=</span><span class="dv">229990</span>, <span class="dt">end=</span><span class="dv">230235</span>, <span class="dt">op=</span><span class="st">&#39;min&#39;</span>)</span>
+<span id="cb21-2"><a href="#cb21-2"></a><span class="co">#&gt; [1] 1</span></span>
+<span id="cb21-3"><a href="#cb21-3"></a><span class="kw">region.probeQuery.bigWig</span>(bw,<span class="dt">chrom=</span><span class="st">&#39;chr2&#39;</span>,<span class="dt">start=</span><span class="dv">229990</span>, <span class="dt">end=</span><span class="dv">230235</span>, <span class="dt">op=</span><span class="st">&#39;min&#39;</span>)</span>
+<span id="cb21-4"><a href="#cb21-4"></a><span class="co">#&gt; [1] 1</span></span></code></pre></div>
 <p>To find the average</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a><span class="kw">region.bpQuery.bigWig</span>(bw,<span class="dt">chrom=</span><span class="st">&#39;chr2&#39;</span>,<span class="dt">start=</span><span class="dv">1</span>, <span class="dt">end=</span><span class="dv">200000</span>, <span class="dt">op=</span><span class="st">&#39;avg&#39;</span>)</span>
-<span id="cb22-2"><a href="#cb22-2"></a><span class="co">#&gt; [1] 0.0001250006</span></span></code></pre></div>
-<p>sometimes the bigWig will have negative values. To keep these values in the counts the <code>abs.value=TRUE</code> option can be used.</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a><span class="kw">region.bpQuery.bigWig</span>(bw,<span class="dt">chrom=</span><span class="st">&#39;chr2&#39;</span>,<span class="dt">start=</span><span class="dv">229990</span>, <span class="dt">end=</span><span class="dv">230235</span>, <span class="dt">op=</span><span class="st">&#39;avg&#39;</span>)</span>
+<span id="cb22-2"><a href="#cb22-2"></a><span class="co">#&gt; [1] 0.03673469</span></span>
+<span id="cb22-3"><a href="#cb22-3"></a><span class="kw">region.probeQuery.bigWig</span>(bw,<span class="dt">chrom=</span><span class="st">&#39;chr2&#39;</span>,<span class="dt">start=</span><span class="dv">229990</span>, <span class="dt">end=</span><span class="dv">230235</span>, <span class="dt">op=</span><span class="st">&#39;avg&#39;</span>)</span>
+<span id="cb22-4"><a href="#cb22-4"></a><span class="co">#&gt; [1] 1.285714</span></span></code></pre></div>
+<p><code>bpQuery</code> counts the number of base pairs to use as the denominator. This is the difference of the <code>end</code> value and the <code>start</code> value.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="dv">230235-229990</span></span>
+<span id="cb23-2"><a href="#cb23-2"></a><span class="co">#&gt; [1] 245</span></span></code></pre></div>
+<p><code>probeQuery</code> counts the number of probes. Essentially, this is the number of rows returned by the query. Here, it is 7.</p>
+<p>Sometimes, the bigWig will have negative values. To keep these values in the counts the <code>abs.value=TRUE</code> option can be used. For this example, you’ll need a different data set. <a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM3452725">negative bigWig files</a>. Download both</p>
+<ul>
+<li>GSM3452725_K562_Nuc_NoRNase_minus.bw</li>
+<li>GSM3452725_K562_Nuc_NoRNase_plus.bw</li>
+</ul>
+<p>and store them in thier own directory. Then using the <code>load.bigWig</code> and store them as <code>bw.plus</code> and <code>bw.minus</code>, respectively. We will use them in later examples.</p>
+<p>When we run a query on <code>bw.minus</code>, you can see that it returns negative counts. You can check out the appendix to see how to search and find negative values.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a><span class="kw">query.bigWig</span>(bw.minus, <span class="dt">chrom=</span><span class="st">&#39;chr1&#39;</span>, <span class="dt">start=</span><span class="dv">10140</span>, <span class="dt">end=</span><span class="dv">10190</span>)</span>
+<span id="cb24-2"><a href="#cb24-2"></a><span class="co">#&gt;      start   end value</span></span>
+<span id="cb24-3"><a href="#cb24-3"></a><span class="co">#&gt; [1,] 10151 10153    -1</span></span>
+<span id="cb24-4"><a href="#cb24-4"></a><span class="co">#&gt; [2,] 10153 10154    -2</span></span>
+<span id="cb24-5"><a href="#cb24-5"></a><span class="co">#&gt; [3,] 10154 10155    -1</span></span>
+<span id="cb24-6"><a href="#cb24-6"></a><span class="co">#&gt; [4,] 10158 10160    -1</span></span></code></pre></div>
+<p>There is a reason the bigWig file returns negative values. We only care about the case that there is a recorded event [+/-]. In this case, we apply the <code>abs.value=TRUE</code> which takes the absolute value of each count before applying the operation. Remember the default is <code>abs.value=FALSE</code></p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="kw">region.probeQuery.bigWig</span>(bw.minus,<span class="dt">chrom=</span><span class="st">&#39;chr1&#39;</span>,<span class="dt">start=</span><span class="dv">10140</span>, <span class="dt">end=</span><span class="dv">10190</span>, <span class="dt">op=</span><span class="st">&#39;avg&#39;</span>)</span>
+<span id="cb25-2"><a href="#cb25-2"></a><span class="co">#&gt; [1] -1.25</span></span>
+<span id="cb25-3"><a href="#cb25-3"></a><span class="kw">region.probeQuery.bigWig</span>(bw.minus,<span class="dt">chrom=</span><span class="st">&#39;chr1&#39;</span>,<span class="dt">start=</span><span class="dv">10140</span>, <span class="dt">end=</span><span class="dv">10190</span>, <span class="dt">op=</span><span class="st">&#39;avg&#39;</span>, <span class="dt">abs.value=</span><span class="ot">TRUE</span>)</span>
+<span id="cb25-4"><a href="#cb25-4"></a><span class="co">#&gt; [1] 1.25</span></span></code></pre></div>
 </div>
-<div id="bed.region.bpquery.bigwig" class="section level3">
-<h3>bed.region.bpQuery.bigwig</h3>
+<div id="bed.region.xxx.bigwig" class="section level3">
+<h3>bed.region.xxx.bigwig</h3>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a><span class="kw">bed.region.bpQuery.bigWig</span>(bw, bed,</span>
+<span id="cb26-2"><a href="#cb26-2"></a>                          <span class="dt">strand =</span> <span class="ot">NA</span>, <span class="dt">op =</span> <span class="st">&quot;sum&quot;</span>, <span class="dt">abs.value =</span> <span class="ot">FALSE</span>, <span class="dt">gap.value =</span> <span class="dv">0</span>,</span>
+<span id="cb26-3"><a href="#cb26-3"></a>                          <span class="dt">bwMap =</span> <span class="ot">NULL</span>)</span>
+<span id="cb26-4"><a href="#cb26-4"></a><span class="kw">bed.region.probeQuery.bigWig</span>(bw, bed,</span>
+<span id="cb26-5"><a href="#cb26-5"></a>                          <span class="dt">op =</span> <span class="st">&quot;wavg&quot;</span>, <span class="dt">abs.value =</span> <span class="ot">FALSE</span>, <span class="dt">gap.value =</span> <span class="ot">NA</span>)</span></code></pre></div>
+<ul>
+<li>arguments
+<ul>
+<li><code>bw</code> is the <code>R</code> pointer created in <code>load.bigWig</code></li>
+<li><code>bed</code> is a dataframe structured like a bed file with columns for <code>chrom</code>, <code>start</code> and <code>end</code></li>
+<li><code>chrom</code> is a string referring to what chromosome is referenced</li>
+<li><code>start</code> is an integer value designation the starting position</li>
+<li><code>end</code> is an integer value designation the ending position</li>
+<li><code>op</code> is a string representing the operation to perform on the step.
+<ul>
+<li><code>sum</code> adds all the counts</li>
+<li><code>avg</code> averages the counts</li>
+<li><code>min</code> finds the smallest count</li>
+<li><code>max</code> finds the largest count</li>
+</ul></li>
+<li><code>abs.value</code> is a logical argument which determines if the absolute value of the input is performed before the <code>op</code>.</li>
+</ul></li>
+</ul>
 <p>This function is similar to <code>region.bpQuery.bigWig</code> except that when defining the areas we want to examine is defined in a bed file rather than <code>chrom</code>, <code>start</code>, and <code>end</code>.</p>
 <p>The source of the bed file can be something created by hand or previous identified regions from other experiments. The basics of the bed is that it’s in a R data frame.</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>bed=<span class="kw">data.frame</span>(<span class="st">&#39;chr1&#39;</span>,<span class="dv">10496</span>,<span class="dv">10497</span>)</span>
-<span id="cb23-2"><a href="#cb23-2"></a><span class="co">#set column headers</span></span>
-<span id="cb23-3"><a href="#cb23-3"></a><span class="kw">colnames</span>(bed)=<span class="kw">c</span>(<span class="st">&#39;chrom&#39;</span>,<span class="st">&#39;start&#39;</span>, <span class="st">&#39;end&#39;</span>)</span></code></pre></div>
-<p>Now this is for a single factor in R. If you ever want to add different factors you’ll need to add levels</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a><span class="kw">levels</span>(bed<span class="op">$</span>chrom)=<span class="kw">c</span>(<span class="st">&#39;chr1&#39;</span>, <span class="st">&#39;chr2&#39;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>bed=<span class="kw">data.frame</span>(<span class="st">&#39;chr1&#39;</span>,<span class="dv">10496</span>,<span class="dv">10497</span>)</span>
+<span id="cb27-2"><a href="#cb27-2"></a><span class="co">#set column headers</span></span>
+<span id="cb27-3"><a href="#cb27-3"></a><span class="kw">colnames</span>(bed)=<span class="kw">c</span>(<span class="st">&#39;chrom&#39;</span>,<span class="st">&#39;start&#39;</span>, <span class="st">&#39;end&#39;</span>)</span></code></pre></div>
+<p>Now this is for a single factor in R. When creating a dataframe in R, it automatically turns strings into factors. This limits the ability to add different <code>chrom</code> designations. Meaning that when created the original bed file, <code>chr1</code> was the only level created. It will return an error if you just try to add</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a><span class="kw">rbind</span>(bed, <span class="kw">c</span>(<span class="st">&#39;chr2&#39;</span>, <span class="dv">10000</span>, <span class="dv">20000</span>))</span>
+<span id="cb28-2"><a href="#cb28-2"></a><span class="co">#&gt; Warning in `[&lt;-.factor`(`*tmp*`, ri, value = &quot;chr2&quot;): invalid factor level,</span></span>
+<span id="cb28-3"><a href="#cb28-3"></a><span class="co">#&gt; NA generated</span></span>
+<span id="cb28-4"><a href="#cb28-4"></a><span class="co">#&gt;   chrom start   end</span></span>
+<span id="cb28-5"><a href="#cb28-5"></a><span class="co">#&gt; 1  chr1 10496 10497</span></span>
+<span id="cb28-6"><a href="#cb28-6"></a><span class="co">#&gt; 2  &lt;NA&gt; 10000 20000</span></span></code></pre></div>
+<p>If you ever want to add different factors, you’ll need to use <code>levels()</code></p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a><span class="kw">levels</span>(bed<span class="op">$</span>chrom)=<span class="kw">c</span>(<span class="st">&#39;chr1&#39;</span>, <span class="st">&#39;chr2&#39;</span>)</span></code></pre></div>
 <p>Take a look at how the data.frame is structured</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="kw">dim</span>(bed)</span>
-<span id="cb25-2"><a href="#cb25-2"></a><span class="co">#&gt; [1] 1 3</span></span>
-<span id="cb25-3"><a href="#cb25-3"></a><span class="kw">attributes</span>(bed)</span>
-<span id="cb25-4"><a href="#cb25-4"></a><span class="co">#&gt; $names</span></span>
-<span id="cb25-5"><a href="#cb25-5"></a><span class="co">#&gt; [1] &quot;chrom&quot; &quot;start&quot; &quot;end&quot;  </span></span>
-<span id="cb25-6"><a href="#cb25-6"></a><span class="co">#&gt; </span></span>
-<span id="cb25-7"><a href="#cb25-7"></a><span class="co">#&gt; $row.names</span></span>
-<span id="cb25-8"><a href="#cb25-8"></a><span class="co">#&gt; [1] 1</span></span>
-<span id="cb25-9"><a href="#cb25-9"></a><span class="co">#&gt; </span></span>
-<span id="cb25-10"><a href="#cb25-10"></a><span class="co">#&gt; $class</span></span>
-<span id="cb25-11"><a href="#cb25-11"></a><span class="co">#&gt; [1] &quot;data.frame&quot;</span></span>
-<span id="cb25-12"><a href="#cb25-12"></a>bed</span>
-<span id="cb25-13"><a href="#cb25-13"></a><span class="co">#&gt;   chrom start   end</span></span>
-<span id="cb25-14"><a href="#cb25-14"></a><span class="co">#&gt; 1  chr1 10496 10497</span></span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a><span class="kw">dim</span>(bed)</span>
+<span id="cb30-2"><a href="#cb30-2"></a><span class="co">#&gt; [1] 1 3</span></span>
+<span id="cb30-3"><a href="#cb30-3"></a><span class="kw">attributes</span>(bed)</span>
+<span id="cb30-4"><a href="#cb30-4"></a><span class="co">#&gt; $names</span></span>
+<span id="cb30-5"><a href="#cb30-5"></a><span class="co">#&gt; [1] &quot;chrom&quot; &quot;start&quot; &quot;end&quot;  </span></span>
+<span id="cb30-6"><a href="#cb30-6"></a><span class="co">#&gt; </span></span>
+<span id="cb30-7"><a href="#cb30-7"></a><span class="co">#&gt; $row.names</span></span>
+<span id="cb30-8"><a href="#cb30-8"></a><span class="co">#&gt; [1] 1</span></span>
+<span id="cb30-9"><a href="#cb30-9"></a><span class="co">#&gt; </span></span>
+<span id="cb30-10"><a href="#cb30-10"></a><span class="co">#&gt; $class</span></span>
+<span id="cb30-11"><a href="#cb30-11"></a><span class="co">#&gt; [1] &quot;data.frame&quot;</span></span>
+<span id="cb30-12"><a href="#cb30-12"></a>bed</span>
+<span id="cb30-13"><a href="#cb30-13"></a><span class="co">#&gt;   chrom start   end</span></span>
+<span id="cb30-14"><a href="#cb30-14"></a><span class="co">#&gt; 1  chr1 10496 10497</span></span></code></pre></div>
 <p><code>dim</code> returns the size of the matrix [1 row, 3 columns]. while <code>attributes</code> returns information on column names, row names and class type.</p>
 <p>You can take this bed file and run it through the bigWig file to see what parts overlap</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a><span class="co"># note: If you leave out op=&#39;&#39;, it will default to op=&#39;sum&#39;</span></span>
-<span id="cb26-2"><a href="#cb26-2"></a><span class="kw">bed.region.bpQuery.bigWig</span>(bw, bed)</span>
-<span id="cb26-3"><a href="#cb26-3"></a><span class="co">#&gt; [1] 1</span></span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a><span class="co"># note: If you leave out op=&#39;&#39;, it will default to op=&#39;sum&#39;</span></span>
+<span id="cb31-2"><a href="#cb31-2"></a><span class="kw">bed.region.bpQuery.bigWig</span>(bw, bed)</span>
+<span id="cb31-3"><a href="#cb31-3"></a><span class="co">#&gt; [1] 1</span></span></code></pre></div>
 <p>Now adding a few other areas to the data frame</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>bed=<span class="kw">rbind</span>(bed, <span class="kw">c</span>(<span class="st">&#39;chr2&#39;</span>, <span class="dv">10500</span>,<span class="dv">10501</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>bed=<span class="kw">rbind</span>(bed, <span class="kw">c</span>(<span class="st">&#39;chr2&#39;</span>, <span class="dv">10500</span>,<span class="dv">10501</span>))</span></code></pre></div>
 <p>In the original query, this region is occupied by a <code>chr1</code> and since the bed file refers to a <code>chr2</code> the sum should be the same because there is no overlap.Then if you rerun</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a><span class="kw">bed.region.bpQuery.bigWig</span>(bw, bed)</span>
-<span id="cb28-2"><a href="#cb28-2"></a><span class="co">#&gt; [1] 1 0</span></span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a><span class="kw">bed.region.bpQuery.bigWig</span>(bw, bed)</span>
+<span id="cb33-2"><a href="#cb33-2"></a><span class="co">#&gt; [1] 1 0</span></span></code></pre></div>
 <p>We see that the then returned values are 1 and 0. This is because the first row of the bed file overlaps the bigWig, but the second row does not overlap.</p>
 <p>Now adding a third row to the bed file that will overlap a larger range of the bigWig and rerun</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>bed2=<span class="kw">rbind</span>(bed, <span class="kw">c</span>(<span class="st">&#39;chr1&#39;</span>, <span class="dv">13000</span>,<span class="dv">14001</span>))</span>
-<span id="cb29-2"><a href="#cb29-2"></a><span class="kw">bed.region.bpQuery.bigWig</span>(bw, bed2)</span>
-<span id="cb29-3"><a href="#cb29-3"></a><span class="co">#&gt; [1]  1  0 11</span></span></code></pre></div>
-<p>The returned values are the sums of the counts in those regions.</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>bed2=<span class="kw">rbind</span>(bed, <span class="kw">c</span>(<span class="st">&#39;chr1&#39;</span>, <span class="dv">13000</span>,<span class="dv">14001</span>))</span>
+<span id="cb34-2"><a href="#cb34-2"></a><span class="kw">bed.region.bpQuery.bigWig</span>(bw, bed2)</span>
+<span id="cb34-3"><a href="#cb34-3"></a><span class="co">#&gt; [1]  1  0 11</span></span></code></pre></div>
+<p>The returned values are the sums of the counts in those regions. ## step</p>
+<p>The following functions operate over defined steps and is described by <code>step=</code> arguement. Same similarity applies between the <code>probeQuery</code> and <code>bpQuery</code> functions that they are the same instead of the calculation when <code>op=avg</code></p>
 </div>
-<div id="step.bpquery.bigwig" class="section level3">
-<h3>step.bpQuery.bigWig()</h3>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a><span class="kw">step.bpQuery.bigWig</span>(bw, chrom, start, end, step,</span>
-<span id="cb30-2"><a href="#cb30-2"></a>                    <span class="dt">strand =</span> <span class="ot">NA</span>, <span class="dt">op =</span> <span class="st">&quot;sum&quot;</span>, <span class="dt">abs.value =</span> <span class="ot">FALSE</span>, <span class="dt">gap.value =</span> <span class="dv">0</span>,</span>
-<span id="cb30-3"><a href="#cb30-3"></a>                    <span class="dt">bwMap =</span> <span class="ot">NULL</span>, <span class="dt">with.attributes =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
+<div id="step.xxx.bigwig" class="section level3">
+<h3>step.xxx.bigWig()</h3>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a><span class="kw">step.bpQuery.bigWig</span>(bw, chrom, start, end, step,</span>
+<span id="cb35-2"><a href="#cb35-2"></a>                    <span class="dt">strand =</span> <span class="ot">NA</span>, <span class="dt">op =</span> <span class="st">&quot;sum&quot;</span>, <span class="dt">abs.value =</span> <span class="ot">FALSE</span>, <span class="dt">gap.value =</span> <span class="dv">0</span>,</span>
+<span id="cb35-3"><a href="#cb35-3"></a>                    <span class="dt">bwMap =</span> <span class="ot">NULL</span>, <span class="dt">with.attributes =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb35-4"><a href="#cb35-4"></a></span>
+<span id="cb35-5"><a href="#cb35-5"></a><span class="kw">step.probeQuery.bigWig</span>(bw, chrom, start, end, step,</span>
+<span id="cb35-6"><a href="#cb35-6"></a>                    <span class="dt">op =</span> <span class="st">&quot;wavg&quot;</span>, <span class="dt">abs.value =</span> <span class="ot">FALSE</span>, <span class="dt">gap.value =</span> <span class="ot">NA</span>,</span>
+<span id="cb35-7"><a href="#cb35-7"></a>                    <span class="dt">with.attributes =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
 <ul>
 <li>arguments
 <ul>
@@ -583,33 +654,37 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <p>The Step function will run through the range provide breaking it up into equal size steps as defined by <code>step =</code>. The key here is that the length of the range [<code>end</code>-<code>start</code>] has to be a multiple of the step. For example if <code>end=21</code> and <code>start=1</code>, The length of the range is 20. This allows for <code>step = [1,2,4,5,10,20]</code>. The return is the value of the operation over that step. So if <code>step =1</code> and <code>op = &#39;min&#39;</code>, then the return would be 20 minimums.</p>
 <p>Now if <code>step = 5</code> and <code>op = &#39;max&#39;</code>, the return will be a 4 element array of the maximum value in the step.</p>
 <p>Let’s take a look over a 20000 interval <code>start=1</code>, <code>end=20001</code> and a <code>step=1000</code>.</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a><span class="kw">step.bpQuery.bigWig</span>(bw,<span class="dt">chrom=</span><span class="st">&#39;chr1&#39;</span>,<span class="dt">start=</span><span class="dv">1</span>, <span class="dt">end=</span><span class="dv">20001</span>, <span class="dt">op=</span><span class="st">&#39;sum&#39;</span>, <span class="dt">step=</span><span class="dv">1000</span>)</span>
-<span id="cb31-2"><a href="#cb31-2"></a><span class="co">#&gt;  [1]  0  0  0  0  0  0  0  0  0  0 10  5 11 11  1  1  2  0  4  3</span></span>
-<span id="cb31-3"><a href="#cb31-3"></a><span class="co">#&gt; attr(,&quot;chrom&quot;)</span></span>
-<span id="cb31-4"><a href="#cb31-4"></a><span class="co">#&gt; [1] &quot;chr1&quot;</span></span>
-<span id="cb31-5"><a href="#cb31-5"></a><span class="co">#&gt; attr(,&quot;start&quot;)</span></span>
-<span id="cb31-6"><a href="#cb31-6"></a><span class="co">#&gt; [1] 1</span></span>
-<span id="cb31-7"><a href="#cb31-7"></a><span class="co">#&gt; attr(,&quot;end&quot;)</span></span>
-<span id="cb31-8"><a href="#cb31-8"></a><span class="co">#&gt; [1] 20001</span></span>
-<span id="cb31-9"><a href="#cb31-9"></a><span class="co">#&gt; attr(,&quot;step&quot;)</span></span>
-<span id="cb31-10"><a href="#cb31-10"></a><span class="co">#&gt; [1] 1000</span></span></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a><span class="kw">step.bpQuery.bigWig</span>(bw,<span class="dt">chrom=</span><span class="st">&#39;chr1&#39;</span>,<span class="dt">start=</span><span class="dv">1</span>, <span class="dt">end=</span><span class="dv">20001</span>, <span class="dt">op=</span><span class="st">&#39;sum&#39;</span>, <span class="dt">step=</span><span class="dv">1000</span>)</span>
+<span id="cb36-2"><a href="#cb36-2"></a><span class="co">#&gt;  [1]  0  0  0  0  0  0  0  0  0  0 10  5 11 11  1  1  2  0  4  3</span></span>
+<span id="cb36-3"><a href="#cb36-3"></a><span class="co">#&gt; attr(,&quot;chrom&quot;)</span></span>
+<span id="cb36-4"><a href="#cb36-4"></a><span class="co">#&gt; [1] &quot;chr1&quot;</span></span>
+<span id="cb36-5"><a href="#cb36-5"></a><span class="co">#&gt; attr(,&quot;start&quot;)</span></span>
+<span id="cb36-6"><a href="#cb36-6"></a><span class="co">#&gt; [1] 1</span></span>
+<span id="cb36-7"><a href="#cb36-7"></a><span class="co">#&gt; attr(,&quot;end&quot;)</span></span>
+<span id="cb36-8"><a href="#cb36-8"></a><span class="co">#&gt; [1] 20001</span></span>
+<span id="cb36-9"><a href="#cb36-9"></a><span class="co">#&gt; attr(,&quot;step&quot;)</span></span>
+<span id="cb36-10"><a href="#cb36-10"></a><span class="co">#&gt; [1] 1000</span></span></code></pre></div>
 <p>The result is a 20 element array of the sum of all the counts in the interval. Notice that the steps that have no counts are zero. If we needed to fill these values in with a specific number like 10, we use <code>gap.value=10</code></p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a><span class="kw">step.bpQuery.bigWig</span>(bw,<span class="dt">chrom=</span><span class="st">&#39;chr1&#39;</span>,<span class="dt">start=</span><span class="dv">1</span>, <span class="dt">end=</span><span class="dv">20001</span>, <span class="dt">op=</span><span class="st">&#39;sum&#39;</span>, <span class="dt">step=</span><span class="dv">10000</span>, <span class="dt">gap.value=</span><span class="dv">10</span>)</span>
-<span id="cb32-2"><a href="#cb32-2"></a><span class="co">#&gt; [1] 10 48</span></span>
-<span id="cb32-3"><a href="#cb32-3"></a><span class="co">#&gt; attr(,&quot;chrom&quot;)</span></span>
-<span id="cb32-4"><a href="#cb32-4"></a><span class="co">#&gt; [1] &quot;chr1&quot;</span></span>
-<span id="cb32-5"><a href="#cb32-5"></a><span class="co">#&gt; attr(,&quot;start&quot;)</span></span>
-<span id="cb32-6"><a href="#cb32-6"></a><span class="co">#&gt; [1] 1</span></span>
-<span id="cb32-7"><a href="#cb32-7"></a><span class="co">#&gt; attr(,&quot;end&quot;)</span></span>
-<span id="cb32-8"><a href="#cb32-8"></a><span class="co">#&gt; [1] 20001</span></span>
-<span id="cb32-9"><a href="#cb32-9"></a><span class="co">#&gt; attr(,&quot;step&quot;)</span></span>
-<span id="cb32-10"><a href="#cb32-10"></a><span class="co">#&gt; [1] 10000</span></span></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a><span class="kw">step.bpQuery.bigWig</span>(bw,<span class="dt">chrom=</span><span class="st">&#39;chr1&#39;</span>,<span class="dt">start=</span><span class="dv">1</span>, <span class="dt">end=</span><span class="dv">20001</span>, <span class="dt">op=</span><span class="st">&#39;sum&#39;</span>, <span class="dt">step=</span><span class="dv">10000</span>, <span class="dt">gap.value=</span><span class="dv">10</span>)</span>
+<span id="cb37-2"><a href="#cb37-2"></a><span class="co">#&gt; [1] 10 48</span></span>
+<span id="cb37-3"><a href="#cb37-3"></a><span class="co">#&gt; attr(,&quot;chrom&quot;)</span></span>
+<span id="cb37-4"><a href="#cb37-4"></a><span class="co">#&gt; [1] &quot;chr1&quot;</span></span>
+<span id="cb37-5"><a href="#cb37-5"></a><span class="co">#&gt; attr(,&quot;start&quot;)</span></span>
+<span id="cb37-6"><a href="#cb37-6"></a><span class="co">#&gt; [1] 1</span></span>
+<span id="cb37-7"><a href="#cb37-7"></a><span class="co">#&gt; attr(,&quot;end&quot;)</span></span>
+<span id="cb37-8"><a href="#cb37-8"></a><span class="co">#&gt; [1] 20001</span></span>
+<span id="cb37-9"><a href="#cb37-9"></a><span class="co">#&gt; attr(,&quot;step&quot;)</span></span>
+<span id="cb37-10"><a href="#cb37-10"></a><span class="co">#&gt; [1] 10000</span></span></code></pre></div>
 </div>
-<div id="bed.step.bpquery.bigwig" class="section level3">
-<h3>bed.step.bpQuery.bigWig()</h3>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a><span class="kw">step.bpQuery.bigWig</span>(bw, chrom, start, end, step,</span>
-<span id="cb33-2"><a href="#cb33-2"></a>                    <span class="dt">strand =</span> <span class="ot">NA</span>, <span class="dt">op =</span> <span class="st">&quot;sum&quot;</span>, <span class="dt">abs.value =</span> <span class="ot">FALSE</span>, <span class="dt">gap.value =</span> <span class="dv">0</span>,</span>
-<span id="cb33-3"><a href="#cb33-3"></a>                    <span class="dt">bwMap =</span> <span class="ot">NULL</span>, <span class="dt">with.attributes =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
+<div id="bed.step.xxx.bigwig" class="section level3">
+<h3>bed.step.xxx.bigWig()</h3>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a><span class="kw">bed.step.bpQuery.bigWig</span>(bw, chrom, start, end, step,</span>
+<span id="cb38-2"><a href="#cb38-2"></a>                    <span class="dt">strand =</span> <span class="ot">NA</span>, <span class="dt">op =</span> <span class="st">&quot;sum&quot;</span>, <span class="dt">abs.value =</span> <span class="ot">FALSE</span>, <span class="dt">gap.value =</span> <span class="dv">0</span>,</span>
+<span id="cb38-3"><a href="#cb38-3"></a>                    <span class="dt">bwMap =</span> <span class="ot">NULL</span>, <span class="dt">with.attributes =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb38-4"><a href="#cb38-4"></a></span>
+<span id="cb38-5"><a href="#cb38-5"></a><span class="kw">bed.step.probeQuery.bigWig</span>(bw, bed, step,</span>
+<span id="cb38-6"><a href="#cb38-6"></a>                    <span class="dt">op =</span> <span class="st">&quot;wavg&quot;</span>, <span class="dt">abs.value =</span> <span class="ot">FALSE</span>, <span class="dt">gap.value =</span> <span class="ot">NA</span>,</span>
+<span id="cb38-7"><a href="#cb38-7"></a>                    <span class="dt">with.attributes =</span> <span class="ot">TRUE</span>, <span class="dt">as.matrix =</span> <span class="ot">FALSE</span>)                    </span></code></pre></div>
 <ul>
 <li>arguments
 <ul>
@@ -627,20 +702,47 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 </ul></li>
 <li><code>abs.value</code> is a logical argument which determines if the absolute value of the input is performed before the <code>op</code>.</li>
 <li><code>gap.value</code> is an integer value that replaces areas that have no overlaps</li>
-<li><code>with.attributes</code> is a logical argument that determines if the results are returned annotated with their source components and/or step size. This is similar to <code>bed.region.bigWig()</code>, where you can add a bed of regions that you are interested in.</li>
+<li><code>with.attributes</code> is a logical argument that determines if the results are returned annotated with their source components and/or step size.</li>
 </ul></li>
 </ul>
+<p>This is similar to <code>bed.region.bigWig()</code>, where you can add a bed of regions that you are interested in.</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a><span class="co">#Create bed dataframe</span></span>
+<span id="cb39-2"><a href="#cb39-2"></a>bed3 =<span class="st"> </span><span class="kw">data.frame</span>(<span class="st">&#39;chr1&#39;</span>, <span class="dv">15000</span>, <span class="dv">25000</span>)</span>
+<span id="cb39-3"><a href="#cb39-3"></a><span class="kw">colnames</span>(bed3)=<span class="kw">c</span>(<span class="st">&#39;chrom&#39;</span>, <span class="st">&#39;start&#39;</span>, <span class="st">&#39;end&#39;</span>)</span>
+<span id="cb39-4"><a href="#cb39-4"></a>bed3=<span class="kw">rbind</span>(bed3, <span class="kw">c</span>(<span class="st">&quot;chr1&quot;</span>, <span class="dv">30000</span>, <span class="dv">35000</span>))</span>
+<span id="cb39-5"><a href="#cb39-5"></a><span class="kw">bed.step.bpQuery.bigWig</span>(bw, bed3, <span class="dt">step=</span><span class="dv">1000</span>, <span class="dt">op=</span><span class="st">&#39;avg&#39;</span>, <span class="dt">with.attributes=</span><span class="ot">FALSE</span>)</span>
+<span id="cb39-6"><a href="#cb39-6"></a><span class="co">#&gt; [[1]]</span></span>
+<span id="cb39-7"><a href="#cb39-7"></a><span class="co">#&gt;  [1] 0.001 0.002 0.000 0.004 0.003 0.002 0.007 0.010 0.003 0.004</span></span>
+<span id="cb39-8"><a href="#cb39-8"></a><span class="co">#&gt; </span></span>
+<span id="cb39-9"><a href="#cb39-9"></a><span class="co">#&gt; [[2]]</span></span>
+<span id="cb39-10"><a href="#cb39-10"></a><span class="co">#&gt; [1] 0 0 0 0 0</span></span></code></pre></div>
+<p>Notice that the defined regions in the bed file are exact multiples of the step. This is explained in the <code>bed.bpQuery.bigWig</code> example. The other attribute of this bed file is the regions defined do not need to be the same size. row 1 in the bed files contains 10 steps, while Row 2 has 5 steps. the final aspect of this example is that <code>bpQuery</code> version uses the <code>step</code> size as the denominator in the average. While <code>probeQuery</code> will use the number of rows in the query</p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a><span class="kw">bed.step.probeQuery.bigWig</span>(bw, bed3, <span class="dt">step=</span><span class="dv">1000</span>, <span class="dt">op=</span><span class="st">&#39;avg&#39;</span>, <span class="dt">with.attributes=</span><span class="ot">FALSE</span>)</span>
+<span id="cb40-2"><a href="#cb40-2"></a><span class="co">#&gt; [[1]]</span></span>
+<span id="cb40-3"><a href="#cb40-3"></a><span class="co">#&gt;  [1] 1.000000 1.000000       NA 1.000000 1.000000 1.000000 1.000000</span></span>
+<span id="cb40-4"><a href="#cb40-4"></a><span class="co">#&gt;  [8] 1.111111 1.000000 1.000000</span></span>
+<span id="cb40-5"><a href="#cb40-5"></a><span class="co">#&gt; </span></span>
+<span id="cb40-6"><a href="#cb40-6"></a><span class="co">#&gt; [[2]]</span></span>
+<span id="cb40-7"><a href="#cb40-7"></a><span class="co">#&gt; [1] NA NA NA NA NA</span></span></code></pre></div>
+<p>In the <code>probe</code> version, we end up with <NA> where there are no overlapping regions. This is because dividing by zero is not possible. Instead the function returns a <NA>.</p>
 </div>
 <div id="bed6s" class="section level3">
 <h3>bed6s</h3>
 <p><code>bed.region.bpQuery.bigWig()</code> and <code>bed.step.bpQuery.bigWig()</code> have counterparts that can take a bed6 file. The bed6 file is similar to a bed file except it has 3 more columns of data.</p>
 <p>Remember the standard bed file has <code>chrom</code>, <code>start</code> and <code>end</code>. The bed6 adds <code>name</code>, <code>score</code>, <code>strand</code> columns to its structure. For these functions, we only need the added <code>strand</code> column. However this column needs to be in the 6th position. Meaning even though <code>name</code> and <code>score</code> columns exist in the dataframe, they can be populated with nulls. You could populate it with identifying information, but the function essentially ignores them. The <code>strand</code> column requires either a <code>+</code> or <code>-</code> to denote the plus or minus strand.</p>
 <p>Here is an example</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>bed6=<span class="kw">data.frame</span>(<span class="st">&#39;chr1&#39;</span>,<span class="dv">1</span>,<span class="dv">100000</span>,<span class="st">&#39;&#39;</span>,<span class="st">&#39;&#39;</span>,<span class="st">&#39;+&#39;</span>)</span>
-<span id="cb34-2"><a href="#cb34-2"></a>colnames=<span class="kw">c</span>(<span class="st">&#39;chrom&#39;</span>, <span class="st">&#39;start&#39;</span>, <span class="st">&#39;end&#39;</span>, <span class="st">&#39;name&#39;</span>, <span class="st">&#39;score&#39;</span>, <span class="st">&#39;strand&#39;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a>bed6=<span class="kw">data.frame</span>(<span class="st">&#39;chr1&#39;</span>,<span class="dv">1</span>,<span class="dv">100000</span>,<span class="st">&#39;&#39;</span>,<span class="st">&#39;&#39;</span>,<span class="st">&#39;+&#39;</span>)</span>
+<span id="cb41-2"><a href="#cb41-2"></a>colnames=<span class="kw">c</span>(<span class="st">&#39;chrom&#39;</span>, <span class="st">&#39;start&#39;</span>, <span class="st">&#39;end&#39;</span>, <span class="st">&#39;name&#39;</span>, <span class="st">&#39;score&#39;</span>, <span class="st">&#39;strand&#39;</span>)</span></code></pre></div>
 <p>This introduces the biological concept of plus and minus strands. This refers to the situation where the biological experiment returns the sense [plus strand] and it’s complimentary RNA strand, antisense [minus strand]</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a><span class="kw">bed6.region.bpQuery.bigWig</span>(bw.plus, bw.minus, bed6,</span>
-<span id="cb35-2"><a href="#cb35-2"></a>                           <span class="dt">op =</span> <span class="st">&quot;sum&quot;</span>, <span class="dt">abs.value =</span> <span class="ot">FALSE</span>, <span class="dt">gap.value =</span> <span class="dv">0</span>, <span class="dt">bwMap =</span> <span class="ot">NULL</span>)</span></code></pre></div>
+<div id="bed6.region" class="section level4">
+<h4>bed6.region</h4>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a><span class="kw">bed6.region.bpQuery.bigWig</span>(bw.plus, bw.minus, bed6,</span>
+<span id="cb42-2"><a href="#cb42-2"></a>                           <span class="dt">op =</span> <span class="st">&quot;sum&quot;</span>, <span class="dt">abs.value =</span> <span class="ot">FALSE</span>, <span class="dt">gap.value =</span> <span class="dv">0</span>, <span class="dt">bwMap =</span> <span class="ot">NULL</span>)</span>
+<span id="cb42-3"><a href="#cb42-3"></a></span>
+<span id="cb42-4"><a href="#cb42-4"></a><span class="kw">bed6.region.probeQuery.bigWig</span>(bw.plus, bw.minus, bed6, step,</span>
+<span id="cb42-5"><a href="#cb42-5"></a>                          <span class="dt">op =</span> <span class="st">&quot;wavg&quot;</span>, <span class="dt">abs.value =</span> <span class="ot">FALSE</span>, <span class="dt">gap.value =</span> <span class="ot">NA</span>,</span>
+<span id="cb42-6"><a href="#cb42-6"></a>                          <span class="dt">with.attributes =</span> <span class="ot">TRUE</span>, <span class="dt">as.matrix =</span> <span class="ot">FALSE</span>,</span>
+<span id="cb42-7"><a href="#cb42-7"></a>                          <span class="dt">follow.strand =</span> <span class="ot">FALSE</span>)                           </span></code></pre></div>
 <ul>
 <li>arguments
 <ul>
@@ -661,13 +763,54 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <li><code>with.attributes</code> is a logical argument that determines if the results are returned annotated with their source components and/or step size.</li>
 </ul></li>
 </ul>
-<p>Let’s look at an example.</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a>bw.plus =<span class="st"> </span><span class="kw">load.bigWig</span>(<span class="kw">paste0</span>(dtDir, dtFn))</span></code></pre></div>
-<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a></span>
-<span id="cb37-2"><a href="#cb37-2"></a><span class="kw">bed6.step.bpQuery.bigWig</span>(bw.plus, bw.minus, bed6, step,</span>
-<span id="cb37-3"><a href="#cb37-3"></a>                         <span class="dt">op =</span> <span class="st">&quot;sum&quot;</span>, <span class="dt">abs.value =</span> <span class="ot">FALSE</span>, <span class="dt">gap.value =</span> <span class="dv">0</span>,</span>
-<span id="cb37-4"><a href="#cb37-4"></a>                         <span class="dt">bwMap =</span> <span class="ot">NULL</span>, <span class="dt">with.attributes =</span> <span class="ot">TRUE</span>, <span class="dt">as.matrix =</span> <span class="ot">FALSE</span>,</span>
-<span id="cb37-5"><a href="#cb37-5"></a>                         <span class="dt">follow.strand =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
+<p>Let’s look at an example. We will use data from the negative values used with <code>abs.value = TRUE</code> In the Region section.</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a>dtDir =<span class="st"> &#39;/home/directory&#39;</span></span>
+<span id="cb43-2"><a href="#cb43-2"></a>dtFnPlus=<span class="st">&#39;GSM3452725_K562_Nuc_NoRNase_plus.bw&#39;</span></span>
+<span id="cb43-3"><a href="#cb43-3"></a>dtFnMinus=<span class="st">&#39;GSM3452725_K562_Nuc_NoRNase_minus.bw&#39;</span></span>
+<span id="cb43-4"><a href="#cb43-4"></a>bw.plus=<span class="kw">load.bigWig</span>(<span class="kw">paste0</span>(dtDirNeg, dtFnPlus))</span>
+<span id="cb43-5"><a href="#cb43-5"></a>bw.minus=<span class="kw">load.bigWig</span>(<span class="kw">paste0</span>(dtDirNeg, dtFnMinus))</span></code></pre></div>
+<p>Using the <code>bw.plus</code> and <code>bw.minus</code> strands, we can evaluate a <code>bed6.region</code> function. First, take a look at the query for each strand.</p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a><span class="kw">query.bigWig</span>(bw.minus, <span class="dt">chrom=</span><span class="st">&#39;chr1&#39;</span>, <span class="dt">start=</span><span class="dv">25000</span>, <span class="dt">end=</span><span class="dv">50000</span>)</span>
+<span id="cb44-2"><a href="#cb44-2"></a><span class="co">#&gt;      start   end value</span></span>
+<span id="cb44-3"><a href="#cb44-3"></a><span class="co">#&gt; [1,] 28567 28568    -1</span></span>
+<span id="cb44-4"><a href="#cb44-4"></a><span class="co">#&gt; [2,] 28570 28571    -1</span></span>
+<span id="cb44-5"><a href="#cb44-5"></a><span class="co">#&gt; [3,] 46605 46606    -1</span></span>
+<span id="cb44-6"><a href="#cb44-6"></a><span class="co">#&gt; [4,] 47071 47072    -1</span></span>
+<span id="cb44-7"><a href="#cb44-7"></a><span class="co">#&gt; [5,] 49218 49219    -1</span></span>
+<span id="cb44-8"><a href="#cb44-8"></a><span class="kw">query.bigWig</span>(bw.plus, <span class="dt">chrom=</span><span class="st">&#39;chr1&#39;</span>, <span class="dt">start=</span><span class="dv">25000</span>, <span class="dt">end=</span><span class="dv">50000</span>)</span>
+<span id="cb44-9"><a href="#cb44-9"></a><span class="co">#&gt;      start   end value</span></span>
+<span id="cb44-10"><a href="#cb44-10"></a><span class="co">#&gt; [1,] 29459 29460     1</span></span></code></pre></div>
+<p>These will beused as reference for when we use the function.</p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a>bed6=<span class="kw">data.frame</span>(<span class="st">&#39;chr1&#39;</span>,<span class="dv">25000</span>,<span class="dv">50000</span>,<span class="st">&#39;&#39;</span>,<span class="st">&#39;&#39;</span>,<span class="st">&#39;+&#39;</span>)</span>
+<span id="cb45-2"><a href="#cb45-2"></a><span class="kw">colnames</span>(bed6)=<span class="kw">c</span>(<span class="st">&#39;chrom&#39;</span>, <span class="st">&#39;start&#39;</span>, <span class="st">&#39;end&#39;</span>, <span class="st">&#39;name&#39;</span>, <span class="st">&#39;score&#39;</span>, <span class="st">&#39;strand&#39;</span>)</span></code></pre></div>
+<p>This particular bed file defines a region between <code>start = 25000</code> and <code>end = 50000</code> on the <code>+</code> strand.</p>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a><span class="kw">bed6.region.probeQuery.bigWig</span>(bw.plus, bw.minus,</span>
+<span id="cb46-2"><a href="#cb46-2"></a>                  bed6, <span class="dt">op=</span><span class="st">&#39;wavg&#39;</span>, <span class="dt">abs.value =</span> <span class="ot">FALSE</span>, <span class="dt">gap.value=</span><span class="dv">0</span>)</span>
+<span id="cb46-3"><a href="#cb46-3"></a><span class="co">#&gt; [1] 1</span></span></code></pre></div>
+<p>The query of the plus strand shows only one overlapping region. The average of 1 region with 1 count is 1.</p>
+<p>Now add another row to our <code>bed6</code> file and rerun the previous <code>bed6.region.probeQuery.bigWig</code> function.</p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1"></a><span class="kw">levels</span>(bed6<span class="op">$</span>strand)=<span class="kw">c</span>(<span class="st">&#39;+&#39;</span>, <span class="st">&#39;-&#39;</span>)</span>
+<span id="cb47-2"><a href="#cb47-2"></a>bed6=<span class="kw">rbind</span>(bed6, <span class="kw">c</span>(<span class="st">&#39;chr1&#39;</span>, <span class="dv">25000</span>, <span class="dv">50000</span>, <span class="st">&#39;&#39;</span>, <span class="st">&#39;&#39;</span>, <span class="st">&#39;-&#39;</span>))</span>
+<span id="cb47-3"><a href="#cb47-3"></a><span class="kw">bed6.region.probeQuery.bigWig</span>(bw.plus, bw.minus, bed6, <span class="dt">op=</span><span class="st">&#39;sum&#39;</span>, <span class="dt">abs.value =</span> <span class="ot">FALSE</span>, <span class="dt">gap.value=</span><span class="dv">0</span>)</span>
+<span id="cb47-4"><a href="#cb47-4"></a><span class="co">#&gt; [1]  1 -5</span></span></code></pre></div>
+<p>Similarly to the <code>bed.region</code> function the return is 2 values one for each overlapping region.</p>
+<p>We can invoke <code>ab.value = TRUE</code> argument and our second result change to a positive value.</p>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1"></a><span class="kw">bed6.region.probeQuery.bigWig</span>(bw.plus, bw.minus, bed6,</span>
+<span id="cb48-2"><a href="#cb48-2"></a>                  <span class="dt">op=</span><span class="st">&#39;sum&#39;</span>, <span class="dt">abs.value =</span> <span class="ot">TRUE</span>, <span class="dt">gap.value=</span><span class="dv">0</span>)</span>
+<span id="cb48-3"><a href="#cb48-3"></a><span class="co">#&gt; [1] 1 5</span></span></code></pre></div>
+</div>
+<div id="bed6.step" class="section level4">
+<h4>bed6.step</h4>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1"></a></span>
+<span id="cb49-2"><a href="#cb49-2"></a><span class="kw">bed6.step.bpQuery.bigWig</span>(bw.plus, bw.minus, bed6, step,</span>
+<span id="cb49-3"><a href="#cb49-3"></a>                         <span class="dt">op =</span> <span class="st">&quot;sum&quot;</span>, <span class="dt">abs.value =</span> <span class="ot">FALSE</span>, <span class="dt">gap.value =</span> <span class="dv">0</span>,</span>
+<span id="cb49-4"><a href="#cb49-4"></a>                         <span class="dt">bwMap =</span> <span class="ot">NULL</span>, <span class="dt">with.attributes =</span> <span class="ot">TRUE</span>, <span class="dt">as.matrix =</span> <span class="ot">FALSE</span>,</span>
+<span id="cb49-5"><a href="#cb49-5"></a>                         <span class="dt">follow.strand =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb49-6"><a href="#cb49-6"></a></span>
+<span id="cb49-7"><a href="#cb49-7"></a><span class="kw">bed6.step.probeQuery.bigWig</span>(bw.plus, bw.minus, bed6, step,</span>
+<span id="cb49-8"><a href="#cb49-8"></a>                          <span class="dt">op =</span> <span class="st">&quot;wavg&quot;</span>, <span class="dt">abs.value =</span> <span class="ot">FALSE</span>, <span class="dt">gap.value =</span> <span class="ot">NA</span>,</span>
+<span id="cb49-9"><a href="#cb49-9"></a>                          <span class="dt">with.attributes =</span> <span class="ot">TRUE</span>, <span class="dt">as.matrix =</span> <span class="ot">FALSE</span>,</span>
+<span id="cb49-10"><a href="#cb49-10"></a>                          <span class="dt">follow.strand =</span> <span class="ot">FALSE</span>)      </span></code></pre></div>
 <ul>
 <li>arguments
 <ul>
@@ -688,8 +831,47 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <li><code>with.attributes</code> is a logical argument that determines if the results are returned annotated with their source components and/or step size.</li>
 </ul></li>
 </ul>
+<p>This is just like <code>step.bed.xxx</code> functions.</p>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1"></a><span class="kw">bed6.step.bpQuery.bigWig</span>(bw.plus, bw.minus, bed6, <span class="dt">step=</span><span class="dv">5000</span>,</span>
+<span id="cb50-2"><a href="#cb50-2"></a>                         <span class="dt">op =</span> <span class="st">&quot;sum&quot;</span>, <span class="dt">abs.value =</span> <span class="ot">FALSE</span>, <span class="dt">gap.value =</span> <span class="dv">0</span>,</span>
+<span id="cb50-3"><a href="#cb50-3"></a>                         <span class="dt">bwMap =</span> <span class="ot">NULL</span>, <span class="dt">with.attributes =</span> <span class="ot">TRUE</span>, <span class="dt">as.matrix =</span> <span class="ot">FALSE</span>,</span>
+<span id="cb50-4"><a href="#cb50-4"></a>                         <span class="dt">follow.strand =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb50-5"><a href="#cb50-5"></a><span class="co">#&gt; [[1]]</span></span>
+<span id="cb50-6"><a href="#cb50-6"></a><span class="co">#&gt; [1] 1 0 0 0 0</span></span>
+<span id="cb50-7"><a href="#cb50-7"></a><span class="co">#&gt; attr(,&quot;chrom&quot;)</span></span>
+<span id="cb50-8"><a href="#cb50-8"></a><span class="co">#&gt; [1] &quot;chr1&quot;</span></span>
+<span id="cb50-9"><a href="#cb50-9"></a><span class="co">#&gt; attr(,&quot;start&quot;)</span></span>
+<span id="cb50-10"><a href="#cb50-10"></a><span class="co">#&gt; [1] 25000</span></span>
+<span id="cb50-11"><a href="#cb50-11"></a><span class="co">#&gt; attr(,&quot;end&quot;)</span></span>
+<span id="cb50-12"><a href="#cb50-12"></a><span class="co">#&gt; [1] 50000</span></span>
+<span id="cb50-13"><a href="#cb50-13"></a><span class="co">#&gt; attr(,&quot;step&quot;)</span></span>
+<span id="cb50-14"><a href="#cb50-14"></a><span class="co">#&gt; [1] 5000</span></span>
+<span id="cb50-15"><a href="#cb50-15"></a><span class="co">#&gt; </span></span>
+<span id="cb50-16"><a href="#cb50-16"></a><span class="co">#&gt; [[2]]</span></span>
+<span id="cb50-17"><a href="#cb50-17"></a><span class="co">#&gt; [1] -2  0  0  0 -3</span></span>
+<span id="cb50-18"><a href="#cb50-18"></a><span class="co">#&gt; attr(,&quot;chrom&quot;)</span></span>
+<span id="cb50-19"><a href="#cb50-19"></a><span class="co">#&gt; [1] &quot;chr1&quot;</span></span>
+<span id="cb50-20"><a href="#cb50-20"></a><span class="co">#&gt; attr(,&quot;start&quot;)</span></span>
+<span id="cb50-21"><a href="#cb50-21"></a><span class="co">#&gt; [1] 25000</span></span>
+<span id="cb50-22"><a href="#cb50-22"></a><span class="co">#&gt; attr(,&quot;end&quot;)</span></span>
+<span id="cb50-23"><a href="#cb50-23"></a><span class="co">#&gt; [1] 50000</span></span>
+<span id="cb50-24"><a href="#cb50-24"></a><span class="co">#&gt; attr(,&quot;step&quot;)</span></span>
+<span id="cb50-25"><a href="#cb50-25"></a><span class="co">#&gt; [1] 5000</span></span></code></pre></div>
+<p>Here the attribute <code>as.matrix</code> will be introduced.</p>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1"></a><span class="kw">bed6.step.bpQuery.bigWig</span>(bw.plus, bw.minus, bed6, <span class="dt">step=</span><span class="dv">5000</span>,</span>
+<span id="cb51-2"><a href="#cb51-2"></a>                         <span class="dt">op =</span> <span class="st">&quot;sum&quot;</span>, <span class="dt">abs.value =</span> <span class="ot">FALSE</span>, <span class="dt">gap.value =</span> <span class="dv">0</span>,</span>
+<span id="cb51-3"><a href="#cb51-3"></a>                         <span class="dt">bwMap =</span> <span class="ot">NULL</span>, <span class="dt">with.attributes =</span> <span class="ot">TRUE</span>, <span class="dt">as.matrix =</span> <span class="ot">TRUE</span>,</span>
+<span id="cb51-4"><a href="#cb51-4"></a>                         <span class="dt">follow.strand =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
+<p>Here is an example of <code>follow.strand</code></p>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1"></a><span class="co">#find length of chr1</span></span>
+<span id="cb52-2"><a href="#cb52-2"></a></span>
+<span id="cb52-3"><a href="#cb52-3"></a><span class="co">#query region start=len-50000 and end=len-25000</span></span></code></pre></div>
 </div>
 </div>
+</div>
+</div>
+<div id="appendix" class="section level1">
+<h1>Appendix</h1>
 </div>
 
 

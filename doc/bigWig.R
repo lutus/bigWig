@@ -3,6 +3,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+options(tinytex.verbose = TRUE)
 
 ## ----eval=FALSE----------------------------------------------------------
 #  #install devtools if necessary
@@ -196,7 +197,13 @@ bed.region.bpQuery.bigWig(bw, bed2)
 step.bpQuery.bigWig(bw,chrom='chr1',start=1, end=20001, op='sum', step=1000)
 
 ## ------------------------------------------------------------------------
-step.bpQuery.bigWig(bw,chrom='chr1',start=1, end=20001, op='sum', step=10000, gap.value=10)
+#gap.value=0
+step.bpQuery.bigWig(bw,chrom='chr1',start=1, end=20001, op='sum', step=10000,
+                    gap.value=0, with.attributes=FALSE)
+
+#gap.value=10
+step.bpQuery.bigWig(bw,chrom='chr1',start=1, end=20001, op='sum', step=10000,
+                    gap.value=10, with.attributes=FALSE)
 
 ## ----eval=FALSE----------------------------------------------------------
 #  bed.step.bpQuery.bigWig(bw, chrom, start, end, step,
@@ -219,7 +226,7 @@ bed.step.probeQuery.bigWig(bw, bed3, step=1000, op='avg', with.attributes=FALSE)
 
 ## ----eval=FALSE----------------------------------------------------------
 #  bed6=data.frame('chr1',1,100000,'','','+')
-#  colnames=c('chrom', 'start', 'end', 'name', 'score', 'strand')
+#  colnames(bed6)=c('chrom', 'start', 'end', 'name', 'score', 'strand')
 
 ## ----eval=FALSE----------------------------------------------------------
 #  bed6.region.bpQuery.bigWig(bw.plus, bw.minus, bed6,
@@ -273,17 +280,32 @@ bed6.region.probeQuery.bigWig(bw.plus, bw.minus, bed6,
 ## ------------------------------------------------------------------------
 bed6.step.bpQuery.bigWig(bw.plus, bw.minus, bed6, step=5000,
                          op = "sum", abs.value = FALSE, gap.value = 0,
-                         bwMap = NULL, with.attributes = TRUE, as.matrix = FALSE,
+                         bwMap = NULL, with.attributes = FALSE, as.matrix = FALSE,
                          follow.strand = FALSE)
 
-## ----eval=FALSE----------------------------------------------------------
-#  bed6.step.bpQuery.bigWig(bw.plus, bw.minus, bed6, step=5000,
-#                           op = "sum", abs.value = FALSE, gap.value = 0,
-#                           bwMap = NULL, with.attributes = TRUE, as.matrix = TRUE,
-#                           follow.strand = FALSE)
+## ------------------------------------------------------------------------
+bed6=data.frame('chr1', 1, 100001, 'a', 'c', '+')
+colnames(bed6)=c('chrom', 'start', 'end', 'name', 'score', 'strand')
+bed6.step.bpQuery.bigWig(bw.plus, bw.minus, bed6, step=5000,
+                         op = "sum", abs.value = FALSE, gap.value = 0,
+                         bwMap = NULL, with.attributes = TRUE, as.matrix = TRUE,
+                         follow.strand = FALSE)
 
-## ----eval=FALSE----------------------------------------------------------
-#  #find length of chr1
-#  
-#  #query region start=len-50000 and end=len-25000
+## ----eval=TRUE-----------------------------------------------------------
+#follow.strand = FALSE
+bed6=data.frame('chr1', 1, 100001, 'a', 'c', '-')
+colnames(bed6)=c('chrom', 'start', 'end', 'name', 'score', 'strand')
+bed6.step.bpQuery.bigWig(bw.plus, bw.minus, bed6, step =5000,
+                         op = "sum", abs.value = FALSE, gap.value = 0,
+                         bwMap = NULL, with.attributes = FALSE, as.matrix = TRUE,
+                         follow.strand = FALSE)
+
+
+## ----eval=TRUE-----------------------------------------------------------
+#follow.strand = TRUE
+bed6.step.bpQuery.bigWig(bw.plus, bw.minus, bed6, step =5000,
+                         op = "sum", abs.value = FALSE, gap.value = 0,
+                         bwMap = NULL, with.attributes = FALSE, as.matrix = TRUE,
+                         follow.strand = TRUE)
+
 

@@ -2,7 +2,11 @@
 title: "bigWig"
 author: Luther Vucic
 date: 09/15/2019
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::pdf_document:
+    toc: true
+    toc_depth: 3
+
 
 vignette: >
   %\VignetteIndexEntry{bigWig}
@@ -10,11 +14,14 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+
+
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+options(tinytex.verbose = TRUE)
 ```
 # Introduction
 bigWig is a R package that has utility function for analyzing and manipulating bigWig files.
@@ -131,7 +138,7 @@ bw=load.bigWig(paste0(dtDir, dtFn))
 
 ```
 
-`query.bigWig` allows you to search the bigWig files for specific chromosomes (`chrom='chr1'`, a string representative of the desired chromosome) within a defined window (`start=1, end = 12000` both are integers and end is inclusive meaning it searches up to and including `end`). It then prints query results to the command line.
+`query.bigWig` allows you to search the bigWig files for specific chromosomes (`chrom='chr1'`, a string representative of the desired chromosome within a defined window (`start=1, end = 12000` both are integers and end is inclusive meaning it searches up to and including `end`). It then prints query results to the command line.
 ```{r}
 query.bigWig(bw, chrom='chr1', start=1, end=12000)
 ```
@@ -153,9 +160,6 @@ It can be accesed by keyword too.
 ```{r}
 bwQ[1,'start']
 ```
-
-`clip` need to create instance
-
 
 ### print.bigWig
 `print.bigWig(bw)` is used to print all of the attributes contained within the object.
@@ -195,7 +199,7 @@ The following sections group `bpQuery` and `probeQuery` functions together becau
 
 
 
-### region.xxx.bigwig
+### By region
  This set of functions takes a region defined by `chrom`, `start` and `end` and returns the result of the operation on the counts.
 
 ```{r eval=FALSE}
@@ -218,38 +222,51 @@ region.probeQuery.bigWig(bw, chrom, start, end,
   + `abs.value` is a logical argument which determines if the absolute value of the input is performed before the `op`.
   + `bwMap` is a bigWig file of areas that cannot be mapped for a reason
 
- This set of functions, `region.xxx.bigWig`, takes a region defined by `chrom`, `start` and `end` and returns the result of the operation on the counts. This allows you to find out basic information on a specific query.
+
+ This allows you to find out basic information on a specific query.
 Starting with a specific query,
+
 ```{r}
 query.bigWig(bw, chrom='chr2', start=229990, end=230235)
 
 ```
 Operations
+
+#### Sum op='sum'
+
 To find how many instances there are where there is a 'chr2' in the bigWig
 ```{r}
 region.bpQuery.bigWig(bw,chrom='chr2',start=229990, end=230235, op='sum')
 region.probeQuery.bigWig(bw,chrom='chr2',start=229990, end=230235, op='sum')
 ```
+#### Maximum op='max'
+
 If you want to find the highest number of instances of chr2
 ```{r}
 region.bpQuery.bigWig(bw,chrom='chr2',start=229990, end=230235, op='max')
 region.probeQuery.bigWig(bw,chrom='chr2',start=229990, end=230235, op='max')
 ```
+#### Minimum op='min'
+
 To find the lowest number of instances
 ```{r}
 region.bpQuery.bigWig(bw,chrom='chr2',start=229990, end=230235, op='min')
 region.probeQuery.bigWig(bw,chrom='chr2',start=229990, end=230235, op='min')
 ```
+#### Average op='avg'
+
 To find the average
 ```{r}
 region.bpQuery.bigWig(bw,chrom='chr2',start=229990, end=230235, op='avg')
 region.probeQuery.bigWig(bw,chrom='chr2',start=229990, end=230235, op='avg')
 ```
-`bpQuery` counts the number of base pairs to use as the denominator. This is the difference of the `end` value and the `start` value.
+Notice the difference in the return of the average. This is because `bpQuery` counts the number of base pairs to use as the denominator of the average. This is the difference of the `end` value and the `start` value.
 ```{r}
 230235-229990
 ```
-`probeQuery` counts the number of probes. Essentially, this is the number of rows returned by the query. Here, it is 7.
+`probeQuery` counts the number of probes. Essentially, this is the number of rows returned by the query. In this example, it is 7.
+
+#### abs.value = FALSE
 
 Sometimes, the bigWig will have negative values. To keep these values in the counts the `abs.value=TRUE` option can be used. For this example, you'll need a different data set.
 [negative bigWig files](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM3452725). Download both
@@ -282,7 +299,7 @@ region.probeQuery.bigWig(bw.minus,chrom='chr1',start=10140, end=10190, op='avg')
 region.probeQuery.bigWig(bw.minus,chrom='chr1',start=10140, end=10190, op='avg', abs.value=TRUE)
 ```
 
-### bed.region.xxx.bigwig
+### Region by Bed
 ```{r eval=FALSE}
 bed.region.bpQuery.bigWig(bw, bed,
                           strand = NA, op = "sum", abs.value = FALSE, gap.value = 0,
@@ -333,14 +350,14 @@ bed
 ```
 `dim` returns the size of the matrix [1 row, 3 columns]. while `attributes` returns information on column names, row names and class type.
 
-You can take this bed file and run it through the bigWig file to see what parts overlap
+You can take this bed file and run it through the bigWig file to see what regions overlap
 
 ```{r}
 # note: If you leave out op='', it will default to op='sum'
 bed.region.bpQuery.bigWig(bw, bed)
 ```
 
-Now adding a few other areas to the data frame
+Now adding a few other regions to the data frame
 ```{r}
 bed=rbind(bed, c('chr2', 10500,10501))
 ```
@@ -348,7 +365,7 @@ In the original query, this region is occupied by a `chr1` and since the bed fil
 ```{r}
 bed.region.bpQuery.bigWig(bw, bed)
 ```
-We see that the then returned values are 1 and 0. This is because the first row of the bed file overlaps the bigWig, but the second row does not overlap.
+We see that the then returned values are 1 and 0. This is because the first region of the bed file overlaps regions of the bigWig, but the second bed region does not overlap any regions of the bigWig.
 
 Now adding a third row to the bed file that will overlap a larger range of the bigWig and rerun
 ```{r}
@@ -357,11 +374,12 @@ bed.region.bpQuery.bigWig(bw, bed2)
 ```
 
 The returned values are the sums of the counts in those regions.
-## step
 
-The following functions operate over defined steps and is described by `step=` arguement. Same similarity applies between the `probeQuery` and `bpQuery` functions that they are the same instead of the calculation when `op=avg`
+## Step
 
-### step.xxx.bigWig()
+The following functions operate over defined steps and is described by `step=` argument. This means in a given region [`start=1` and `end=10`] and a `step=5`, the function will create subregions of 5. In this example, it will run on [`start=1`, `end=5`] and [`start=6`, `end=10`]. Again, `probeQuery` and `bpQuery` functions are the same, exce;pt when calculating `op=avg`.
+
+### Step through region
 
 ```{r eval=FALSE}
 step.bpQuery.bigWig(bw, chrom, start, end, step,
@@ -397,10 +415,16 @@ step.bpQuery.bigWig(bw,chrom='chr1',start=1, end=20001, op='sum', step=1000)
 The result is a 20 element array of the sum of all the counts in the interval. Notice that the steps that have no counts are zero. If we needed to fill these values in with a specific number like 10, we use `gap.value=10`
 
 ```{r}
-step.bpQuery.bigWig(bw,chrom='chr1',start=1, end=20001, op='sum', step=10000, gap.value=10)
-```
+#gap.value=0
+step.bpQuery.bigWig(bw,chrom='chr1',start=1, end=20001, op='sum', step=10000,
+                    gap.value=0, with.attributes=FALSE)
 
-### bed.step.xxx.bigWig()
+#gap.value=10
+step.bpQuery.bigWig(bw,chrom='chr1',start=1, end=20001, op='sum', step=10000,
+                    gap.value=10, with.attributes=FALSE)
+```             
+
+### Step through region by Bed
 
 ```{r eval=FALSE}
 bed.step.bpQuery.bigWig(bw, chrom, start, end, step,
@@ -442,10 +466,10 @@ Notice that the defined regions in the bed file are exact multiples of the step.
 bed.step.probeQuery.bigWig(bw, bed3, step=1000, op='avg', with.attributes=FALSE)
 ```
 
-In the `probe` version, we end up with <NA> where there are no overlapping regions. This is because dividing by zero is not possible. Instead the function returns a <NA>.
+In the `probe` version, we end up with <NA> where there are no overlapping regions. This is because dividing by zero is not possible. Instead the function returns a `NA`.
 
 
-### bed6s
+### Bed6 files
 
 `bed.region.bpQuery.bigWig()` and `bed.step.bpQuery.bigWig()` have counterparts that can take a bed6 file. The bed6 file is similar to a bed file except it has 3 more columns of data.
 
@@ -454,7 +478,7 @@ Remember the standard bed file has `chrom`, `start` and `end`. The bed6 adds `na
 Here is an example
 ```{r eval=FALSE}
 bed6=data.frame('chr1',1,100000,'','','+')
-colnames=c('chrom', 'start', 'end', 'name', 'score', 'strand')
+colnames(bed6)=c('chrom', 'start', 'end', 'name', 'score', 'strand')
 ```
 
 This introduces the biological concept of plus and minus strands. This refers to the situation where the biological experiment returns the sense [plus strand] and it's complimentary RNA strand, antisense [minus strand]
@@ -500,7 +524,7 @@ Using the `bw.plus` and `bw.minus` strands, we can evaluate a `bed6.region` func
 query.bigWig(bw.minus, chrom='chr1', start=25000, end=50000)
 query.bigWig(bw.plus, chrom='chr1', start=25000, end=50000)
 ```
-These will beused as reference for when we use the function.
+These will be used as reference for when we use the function.
 
 ```{r}
 bed6=data.frame('chr1',25000,50000,'','','+')
@@ -565,25 +589,42 @@ This is just like `step.bed.xxx` functions.
 ```{r}
 bed6.step.bpQuery.bigWig(bw.plus, bw.minus, bed6, step=5000,
                          op = "sum", abs.value = FALSE, gap.value = 0,
-                         bwMap = NULL, with.attributes = TRUE, as.matrix = FALSE,
+                         bwMap = NULL, with.attributes = FALSE, as.matrix = FALSE,
                          follow.strand = FALSE)
 ```
+#### as.matrix
 
-Here the attribute `as.matrix` will be introduced.
+Here the attribute `as.matrix` will be introduced. This attribute causes the output to be a matrix.
 
-```{r eval=FALSE}
+```{r}
+bed6=data.frame('chr1', 1, 100001, 'a', 'c', '+')
+colnames(bed6)=c('chrom', 'start', 'end', 'name', 'score', 'strand')
 bed6.step.bpQuery.bigWig(bw.plus, bw.minus, bed6, step=5000,
                          op = "sum", abs.value = FALSE, gap.value = 0,
                          bwMap = NULL, with.attributes = TRUE, as.matrix = TRUE,
                          follow.strand = FALSE)
 ```
+#### follow.strand
 
-Here is an example of `follow.strand`
+`follow.strand` is an attribute that will switch the direction of how it reads the `-` strand. This allows you to read both strands `+` and `-` from the 3' end. To show this we can see that the results are mirrors of each other.
 
-```{r eval=FALSE}
-#find length of chr1
+```{r eval=TRUE}
+#follow.strand = FALSE
+bed6=data.frame('chr1', 1, 100001, 'a', 'c', '-')
+colnames(bed6)=c('chrom', 'start', 'end', 'name', 'score', 'strand')
+bed6.step.bpQuery.bigWig(bw.plus, bw.minus, bed6, step =5000,
+                         op = "sum", abs.value = FALSE, gap.value = 0,
+                         bwMap = NULL, with.attributes = FALSE, as.matrix = TRUE,
+                         follow.strand = FALSE)
 
-#query region start=len-50000 and end=len-25000
 ```
+Mirrors
 
-# Appendix
+```{r eval=TRUE}
+#follow.strand = TRUE
+bed6.step.bpQuery.bigWig(bw.plus, bw.minus, bed6, step =5000,
+                         op = "sum", abs.value = FALSE, gap.value = 0,
+                         bwMap = NULL, with.attributes = FALSE, as.matrix = TRUE,
+                         follow.strand = TRUE)
+
+```

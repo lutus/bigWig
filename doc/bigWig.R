@@ -100,10 +100,122 @@ cat(" min: ", bw$min, "\n")
 cat(" max: ", bw$max, "\n")
 cat(" std: ", bw$std, "\n")
 
+## ----echo=FALSE----------------------------------------------------------
+floc='/home/lutus/_projects/_dev/guertin/bigWig/workflow/_data/testBed.bed'
+
+
+## ------------------------------------------------------------------------
+bed=read.table(floc, header=FALSE, sep='\t', stringsAsFactors=FALSE)
+
+## ----eval=FALSE----------------------------------------------------------
+#  bed=read.table(floc, header=FALSE, sep='\t', stringsAsFactors=FALSE, skip=1)
+
+## ------------------------------------------------------------------------
+chrom=c('chr1')
+start=c(300)
+end=c(310)
+bedT=data.frame(chrom, start, end, stringsAsFactors=FALSE)
+bedT
+
+## ------------------------------------------------------------------------
+bedT=rbind(bedT,c('chr1',400,402))
+bedT=transform(bedT, start=as.numeric(start), end=as.numeric(end))
+bedT
+
+## ------------------------------------------------------------------------
+chrom=c('chr1', 'chr1','chr1', 'chr1')
+start=c(300,400,500,600)
+end=c(310,410,510,610)
+name=c('na','na','na','na')
+score=c(1,1,1,1)
+strand=c('+','-','+','-')
+bed6=data.frame(chrom,start,end,name,score,strand,stringsAsFactors=FALSE)
+bed6
+
+## ----eval=FALSE----------------------------------------------------------
+#  center.bed(bed, upstreamWindow, downstreamWindow)
+#  
+#  fiveprime.bed(bed, upstreamWindow, downstreamWindow)
+#  
+#  threeprime.bed(bed, upstreamWindow, downstreamWindow)
+
+## ------------------------------------------------------------------------
+bed
+
+## ------------------------------------------------------------------------
+center.bed(bed, upstreamWindow = 0, downstreamWindow = 0)
+
+## ------------------------------------------------------------------------
+center.bed(bed, upstreamWindow = 5, downstreamWindow = 5)
+
+## ------------------------------------------------------------------------
+center.bed(bed, upstreamWindow = -1, downstreamWindow = 4)
+
+## ------------------------------------------------------------------------
+fiveprime.bed(bed, upstreamWindow = 0, downstreamWindow = 0)
+threeprime.bed(bed, upstreamWindow = 0, downstreamWindow = 0)
+
+## ------------------------------------------------------------------------
+fiveprime.bed(bed, upstreamWindow = 1, downstreamWindow = 5)
+threeprime.bed(bed, upstreamWindow = 1, downstreamWindow = 5)
+
+# negative value
+fiveprime.bed(bed, upstreamWindow = -1, downstreamWindow = 5)
+threeprime.bed(bed, upstreamWindow = -1, downstreamWindow = 5)
+
+## ------------------------------------------------------------------------
+fiveprime.bed(bed6, upstreamWindow=4, downstreamWindow=2)
+threeprime.bed(bed6, upstreamWindow=4, downstreamWindow=2)
+
+## ----eval=FALSE----------------------------------------------------------
+#  downstream.bed(bed, downstreamWindow)
+#  
+#  upstream.bed(bed, upstreamWindow)
+#  
+
+## ------------------------------------------------------------------------
+downstream.bed(bed, downstreamWindow = 5)
+upstream.bed(bed, upstreamWindow = 5)
+
+## ------------------------------------------------------------------------
+downstream.bed(bed6,5)
+upstream.bed(bed6,5)
+
+## ----eval=FALSE----------------------------------------------------------
+#  foreach.bed(bed, func, envir = parent.frame())
+
+## ------------------------------------------------------------------------
+sizes.bed <- function(bed) {
+  N = dim(bed)[1]
+  sizes = vector(mode="integer", length=N)
+
+  foreach.bed(bed, function(i, chrom, start, end, strand) {
+    sizes[i] <<- end - start
+  })
+
+  return(sizes)
+}
+sizes.bed(bed)
+
+## ----eval=FALSE----------------------------------------------------------
+#  func <- function(i, chrom, start, end, strand) {
+#    sizes[i] <<- end - start
+#  }
+#  
+#  sizes.bed <- function(bed) {
+#    N = dim(bed)[1]
+#    sizes = vector(mode="integer", length=N)
+#  
+#    foreach.bed(bed, func)
+#  
+#    return(sizes)
+#  }
+#  sizes.bed(bed)
+
 ## ----eval=FALSE----------------------------------------------------------
 #  region.bpQuery.bigWig(bw, chrom, start, end,
-#                         op = "sum", abs.value = FALSE
-#                        bwMap = NULL)
+#                         op = "sum", abs.value = FALSE,
+#                        bwMap = NULL, gap.value = NA)
 #  region.probeQuery.bigWig(bw, chrom, start, end,
 #                        op = "wavg", abs.value = FALSE, gap.value = NA)
 
@@ -147,6 +259,24 @@ query.bigWig(bw.minus, chrom='chr1', start=10140, end=10190)
 region.probeQuery.bigWig(bw.minus,chrom='chr1',start=10140, end=10190, op='avg')
 region.probeQuery.bigWig(bw.minus,chrom='chr1',start=10140, end=10190, op='avg', abs.value=TRUE)
 
+## ------------------------------------------------------------------------
+query.bigWig(bw, chrom='chr2', start=229990, end=230235)
+
+## ------------------------------------------------------------------------
+query.bigWig(bw, chrom='chr2', start=229993, end=230001)
+
+## ------------------------------------------------------------------------
+region.bpQuery.bigWig(bw, chrom='chr2', start=229993, end=230001, op='min')
+region.bpQuery.bigWig(bw, chrom='chr2', start=229993, end=230001, op='max')
+region.bpQuery.bigWig(bw, chrom='chr2', start=229993, end=230001, op='sum')
+region.bpQuery.bigWig(bw, chrom='chr2', start=229993, end=230001, op='avg')
+
+## ------------------------------------------------------------------------
+region.bpQuery.bigWig(bw, chrom='chr2', start=229993, end=230001, op='min', gap.value=1)
+region.bpQuery.bigWig(bw, chrom='chr2', start=229993, end=230001, op='max', gap.value=1)
+region.bpQuery.bigWig(bw, chrom='chr2', start=229993, end=230001, op='sum', gap.value=1)
+region.bpQuery.bigWig(bw, chrom='chr2', start=229993, end=230001, op='avg', gap.value=1)
+
 ## ----eval=FALSE----------------------------------------------------------
 #  bed.region.bpQuery.bigWig(bw, bed,
 #                            strand = NA, op = "sum", abs.value = FALSE, gap.value = 0,
@@ -183,6 +313,26 @@ bed.region.bpQuery.bigWig(bw, bed)
 ## ------------------------------------------------------------------------
 bed2=rbind(bed, c('chr1', 13000,14001))
 bed.region.bpQuery.bigWig(bw, bed2)
+
+## ------------------------------------------------------------------------
+query.bigWig(bw, chrom='chr2',start=229990, end=229992)
+
+## ------------------------------------------------------------------------
+query.bigWig(bw, chrom='chr2',start=229993, end=230001)
+
+## ------------------------------------------------------------------------
+bedWgap =data.frame('chr2', 229990, 229992)
+bedWgap=rbind(bedWgap,c('chr2', 229993, 230001))
+colnames(bedWgap)=c('chrom', 'start', 'end')
+
+## ------------------------------------------------------------------------
+bed.region.bpQuery.bigWig(bw, bedWgap, op='avg', gap.value=270)
+
+## ------------------------------------------------------------------------
+bed.region.bpQuery.bigWig(bw, bedWgap, op='avg', gap.value=NA)
+bed.region.bpQuery.bigWig(bw, bedWgap, op='avg', gap.value=0)
+bed.region.probeQuery.bigWig(bw, bedWgap, op='avg', gap.value=NA)
+bed.region.probeQuery.bigWig(bw, bedWgap, op='avg', gap.value=0)
 
 ## ----eval=FALSE----------------------------------------------------------
 #  step.bpQuery.bigWig(bw, chrom, start, end, step,
@@ -308,4 +458,17 @@ bed6.step.bpQuery.bigWig(bw.plus, bw.minus, bed6, step =5000,
                          bwMap = NULL, with.attributes = FALSE, as.matrix = TRUE,
                          follow.strand = TRUE)
 
+
+## ----eval=FALSE----------------------------------------------------------
+#  quantiles.metaprofile(mat, quantiles = c(0.875, 0.5, 0.125))
+#  
+#  subsampled.quantiles.metaprofile(mat, quantiles = c(0.875, 0.5, 0.125), fraction = 0.10,
+#                                   n.samples = 1000)
+#  
+#  confinterval.metaprofile(mat, alpha = 0.05)
+#  
+#  bootstrapped.confinterval.metaprofile(mat, alpha = 0.05, n.samples = 300)
+#  
+#  metaprofile.bigWig(bed, bw.plus, bw.minus = NULL, step = 1, name = "Signal",
+#                     matrix.op = NULL, profile.op = subsampled.quantiles.metaprofile, ...)
 

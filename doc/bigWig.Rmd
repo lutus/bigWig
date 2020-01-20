@@ -1024,7 +1024,7 @@ metaprofile.bigWig(bed, bw.plus, bw.minus = NULL, step = 1, name = "Signal",
 ```
 
 + arguments
-  + `mat`the input data matrix; each row corresponds to a query region, columns to steps.
+  + `mat`the input data matrix; each row corresponds to a query region, columns to steps. Created from functions that have `as.matrix=true`
   + `quantiles`vector of size three with top, middle and bottom quantile breaks to use in creating the summary profile.
   + `fraction`fraction of the data (query regions) to include in each subsample.
   + `n.samples`number of data samples to generate.
@@ -1037,3 +1037,286 @@ metaprofile.bigWig(bed, bw.plus, bw.minus = NULL, step = 1, name = "Signal",
   + `matrix.op`matrix scalling function to apply to the data.
   + `profile.op`summary profile funcion.
   + `...`extra arguments to be passed to matrix.op and/or profile.op.
+
+
+The main input for all of these functions is `mat`. This particular matrix of integers is a of y rows and x columns. The integers represent the result of the operation performed on the window provided by a bed file. Each row in the bed file is a row in the matrix [y]. If there is more than 1 column, this means that the bed file was processed with a `step` attribute.
+
+Functions that can produce a viable `mat` are:
+* `bed.step.bpQuery.bigWig`
+* `bed.step.probeQuery.bigWig`
+* `bed6.step.bpQuery.bigWig`
+* `bed6.step.probeQuery.bigWig`
+
+All of these functions require the `as.matrix=TRUE` attribute.
+
+### Quantiles
+
+`quantiles.metaprofile` invokes `R's` `quantile` function on the integer in the matrix for each `quantile`.
+
+For this example, we'll create a simple bed file and run it through `bed6.step.bpQuery.bigWig` with `as.matrix=TRUE` to get a `mat`.
+
+```{r}
+bed6=data.frame('chr1', 1, 100001, 'a', 'c', '+')
+colnames(bed6)=c('chrom', 'start', 'end', 'name', 'score', 'strand')
+bed6=rbind(bed6, c('chr1', 200001, 300001, 'a', 'c', '+'))
+bed6=transform(bed6, start=as.numeric(start), end=as.numeric(end))
+bed6
+mat=bed6.step.bpQuery.bigWig(bw.plus, bw.minus, bed6, step=50000,
+                         op = "sum", abs.value = FALSE, gap.value = 0,
+                         bwMap = NULL, with.attributes = TRUE, as.matrix = TRUE,
+                         follow.strand = FALSE)
+mat
+```
+We can then pass this `mat` to `quantiles.metaprofile`
+
+```{r}
+quantiles.metaprofile(mat, quantiles = c(0.875, 0.5, 0.125))
+```
+The result of `quantiles.metaprofile` is a list of `quantile` values for the number and step size. The above example returns 2 values per quantile value because there are 2 steps in the given window.
+
+
+`subsampled.quantiles.metaprofile` function
+
+```{r}
+subsampled.quantiles.metaprofile(mat, quantiles = c(0.875, 0.5, 0.125), fraction = 0.10,n.samples = 1000)
+```
+### Confidence Interval
+
+`confinterval.metaprofile` is used to calculate a confidence intervals.
+
+```{r}
+confinterval.metaprofile(mat, alpha = 0.05)
+```
+
+The result is a list of confidence interval values for each step for the given `alpha` value. There are 3 different levels of confidence intervals: Top, Middle and Bottom. Each of these are based on 2 values. The population mean, which is the mean of each column in `mat`. Then the delta, which is
+
+$delta=P(1-\alpha/2) * SE$
+
+SE is the Standard Error of the column.
+
+Using this delta and the means
+
+$Top = mean +delta$
+$Middle = mean$
+$Bottom = mean - delta$
+
+### Bootstrap
+
+`bootstrapped.confinterval.metaprofile` The bootstrap method produces a confidence interval like `confinterval.metaprofiles` except that it uses multiple samples to form a distribution and from this we can use the Central Limit Theorem to determine the confidence interval.[^1]
+
+[^1]: <https://cran.r-project.org/web/packages/dabestr/vignettes/bootstrap-confidence-intervals.html>[link](https://cran.r-project.org/web/packages/dabestr/vignettes/bootstrap-confidence-intervals.html)
+
+```{r}
+bootstrapped.confinterval.metaprofile(mat, alpha = 0.05, n.samples = 300)
+```
+This tends to be a more robust calculation of the confidence interval. The more `n.samples` you have gives a better estimation.
+
+### metaprofile
+
+`metaprofile.bigWig` creates a class object of the data. That will be used in `plot.profile.bigWig`.
+
+So, if we wanted to run `quantiles.metaprofile` on the bigWig, `profile.op = quantiles.metaprofile`. `matrix.op = NULL` will be discussed in another section.
+
+```{r}
+metaprofile.bigWig(bed6, bw.plus, bw.minus = bw.minus, step = 50000, name = "Signal",
+                  matrix.op = NULL, profile.op = quantiles.metaprofile)
+```
+
+This function automatically creates the `mat` variable and will use the default values for the rest of the inputs. In the case of `bootstrapped.confinterval.metaprofile`, to change `alpha=0.05` and `n.samples=300` you would have to pass new inputs of `alpha=0.05`, and `n.samples=1000`.
+
+```{r}
+metaprofile.bigWig(bed6, bw.plus, bw.minus = bw.minus, step = 50000, name = "Signal",
+                  matrix.op = NULL, profile.op = bootstrapped.confinterval.metaprofile, alpha=0.05, n.samples=1000)
+```
+
+## Matrix Scaling
+
+These functions will scale a matrix depending on which method is used.
+
+* arguments
+  + mat is the input data matrix; each row corresponds to a query region, columns to steps
+  + step is step size in base pairs
+  + libSize is total library mapped read count
+  + na.on.zero is logical indicating if steps with zero counts should be marked as NA
+
+### RPKM
+
+RPKM [Reads Per Kilobase of transcript per Million mapped reads]. This function will scale everything by a factor of
+
+$factor = \frac{(step/1000)}{libsize/1000000}$
+
+```{r}
+# Original mat
+mat
+
+rpkm.scale(mat, step=50000, libSize=1000000)
+```
+
+
+### Density to One
+
+`densityToOne` is a scaling factor that takes each cell in a row of the matrix and divides it by the sum of each row and.
+
+```{r}
+densityToOne.scale(mat, na.on.zero = TRUE)
+```
+
+The `na.on.zero = TRUE` input is used if you want NAs to populate the matrix row when the `sum(row)=0`. This would happen because dividing by 0 will result in NA. Otherwise if you 0 to replace NA then `na.on.zero=FALSE` should be used.
+
+```{r echo=FALSE}
+mat1=matrix(c(0,4,0,9), nrow=2, ncol=2)
+```
+
+```{r}
+#Original Matrix
+mat1
+
+densityToOne.scale(mat1, na.on.zero = TRUE)
+densityToOne.scale(mat1, na.on.zero = FALSE)
+```
+
+### Max to one
+
+`maxToOne.scale` will take the maximum value for each row and set it equal to 1. Every other cell in the row will be divided by the max.
+
+```{r}
+#Original Matrix
+mat
+maxToOne.scale(mat)
+mat1
+maxToOne.scale(mat1)
+```
+Note that if the `max=0` then the whole row is set to 0. This avoids NAs.
+
+### Zero to one
+
+`zeroToOne.scale` compares the differences between the max and min of each row. It uses the following formula.
+$x_{n}=\frac{x_{o}-min}{max-min}$
+
+```{r}
+mat
+maxToOne.scale(mat)
+```
+There are 2 conditions where this does not apply. First is when `max=0`. In this case to avoid NAs, the row is set to 0.
+
+```{r}
+mat1
+maxToOne.scale(mat1)
+```
+The other condition is when the max is equal to the min. When this happens, the row is set to 1.
+
+```{r echo=FALSE}
+mat2=matrix(c(2,4,2,9), nrow=2, ncol=2)
+```
+
+```{r}
+mat2
+zeroToOne.scale(mat2)
+```
+
+### metaprofile with a matrix.op
+
+Now we can add a scaling factor into the `metaprofile.bigWig`
+
+```{r}
+metaprofile.bigWig(bed6, bw.plus, bw.minus = bw.minus, step = 50000, name = "Signal",
+                  matrix.op = zeroToOne.scale,
+                  profile.op = bootstrapped.confinterval.metaprofile)
+```
+
+## bwMap
+
+## plots.bigWig
+
+`plots.bigWig` produces a standardized plot for a `metaprofile.bigWig` object.
+
+* arguments
+   + x is Meta-profile instance for sense strand
+   + minus.profile is Optional meta-profile instance for reverse strand
+   + X0 is Numeric offset in base pairs (bp) to shift (subtract) "zero" position.
+   + draw.error is Logical value indicating if profile error polygon should be drawn.
+   + col is Vector of colors to use for, respectively, sense strand profile line, reverse strand profile line, sense strand error polygon, reverse strand error polygon.
+   + ylim is The (y1, y2) limits of the plot.
+   + xlim is The (x1, x2) limits of the plot.
+   + xlab is Label for x-axis.
+   + ylab is Label for y-axis.
+
+In order for this plot function to work, you need a `metaprofile.bigWig` object. You get this by setting it to a variable `x=metaprofile.bigWig`. Then you can call `plot.metaprofile`.
+
+```{r}
+x=metaprofile.bigWig(bed6, bw.plus, bw.minus = bw.minus, step = 50000, name = "Signal",
+                  matrix.op = NULL, profile.op = confinterval.metaprofile)
+
+plot.metaprofile(x, minus.profile = NULL, X0 = x$X0,
+      draw.error = TRUE, col = c("red", "blue", "lightgrey", "lightgrey"),
+      ylim = NULL, xlim = NULL, xlab = "Distance (bp)", ylab = x$name)
+```
+
+### Reverse strand
+
+To add the reverse strand, you need a `metaprofile.bigWig` for it. Here we set `xr` to the reverse strand.
+
+
+```{r}
+x=metaprofile.bigWig(bed6, bw.plus, bw.minus = bw.minus, step = 50000, name = "Signal",
+                  matrix.op = NULL, profile.op = confinterval.metaprofile)
+xr=metaprofile.bigWig(bed6, bw.minus, bw.minus = bw.plus, step = 50000, name = "Signal",
+                  matrix.op = NULL, profile.op = confinterval.metaprofile)
+plot.metaprofile(x, minus.profile = xr, X0 = x$X0,
+       draw.error = TRUE, col = c("red", "blue", "lightgrey", "lightgrey"),
+       ylim = NULL, xlim = NULL, xlab = "Distance (bp)", ylab = x$name)
+```
+
+Note that `xr` switches the `bw.plus` and `bw.plus` inputs. This gives our reverse strand because from the original data they are the reverse of each other.
+
+### Offset start
+
+`X0` input allows you to change the "zero" point of the data. By default it uses the `X0=x$X0`, but it could be changed manually too.
+
+```{r}
+plot.metaprofile(x, minus.profile = xr, X0 = 25000,
+      draw.error = TRUE, col = c("red", "blue", "lightgrey", "lightgrey"),
+      ylim = NULL, xlim = NULL, xlab = "Distance (bp)", ylab = x$name)
+```
+
+Notice the x axis distance changes. This is because you are setting the start to be offset by 25000.
+
+### Axes limits
+
+`ylim` and `xlim` are the lower and upper limits of the axes and are automatically calculated if `NULL`. However, you can choose your own values by passing a vector [low, high].
+
+```{r}
+plot.metaprofile(x, minus.profile = xr, X0 = 25000,
+      draw.error = TRUE, col = c("red", "blue", "lightgrey", "lightgrey"),
+      ylim = c(-500,500), xlim = c(-1000, 50000), xlab = "Distance (bp)", ylab = x$name)
+```
+Looking at the axes, you can ow see the change in lower and upper limits.
+
+### Error regions
+
+`draw.error` is a logical flag that turns on [`draw.error=TRUE`] error regions [light grey areas] or off [`draw.error=FALSE`]
+
+```{r}
+plot.metaprofile(x, minus.profile = xr, X0 = 25000,
+                draw.error = FALSE, col = c("red", "blue", "lightgrey", "lightgrey"),
+                ylim = NULL, xlim = NULL, xlab = "Distance (bp)", ylab = x$name)
+```
+
+You can see that the light grey error regions have been removed.
+
+### Colors
+
+`col` input is a vector of predefined colors for plot. `R` has hundreds of predefined colors. To obtain a list, you can call `colors()`. Here is the 1st 25 colors.
+
+```{r}
+colors()[1:25]
+```
+
+The order of the `col` vector is sense strand profile line, reverse strand profile line, sense strand error polygon, reverse strand error polygon. You can change the colors to help clarify each region.
+
+
+```{r}
+plot.metaprofile(x, minus.profile = xr, X0 = 25000,
+                draw.error = TRUE, col = c("green", "yellow", "purple", "grey"),
+                ylim = NULL, xlim = NULL, xlab = "Distance (bp)", ylab = x$name)
+```

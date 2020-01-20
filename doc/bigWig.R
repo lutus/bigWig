@@ -472,3 +472,121 @@ bed6.step.bpQuery.bigWig(bw.plus, bw.minus, bed6, step =5000,
 #  metaprofile.bigWig(bed, bw.plus, bw.minus = NULL, step = 1, name = "Signal",
 #                     matrix.op = NULL, profile.op = subsampled.quantiles.metaprofile, ...)
 
+## ------------------------------------------------------------------------
+bed6=data.frame('chr1', 1, 100001, 'a', 'c', '+')
+colnames(bed6)=c('chrom', 'start', 'end', 'name', 'score', 'strand')
+bed6=rbind(bed6, c('chr1', 200001, 300001, 'a', 'c', '+'))
+bed6=transform(bed6, start=as.numeric(start), end=as.numeric(end))
+bed6
+mat=bed6.step.bpQuery.bigWig(bw.plus, bw.minus, bed6, step=50000,
+                         op = "sum", abs.value = FALSE, gap.value = 0,
+                         bwMap = NULL, with.attributes = TRUE, as.matrix = TRUE,
+                         follow.strand = FALSE)
+mat
+
+## ------------------------------------------------------------------------
+quantiles.metaprofile(mat, quantiles = c(0.875, 0.5, 0.125))
+
+## ------------------------------------------------------------------------
+subsampled.quantiles.metaprofile(mat, quantiles = c(0.875, 0.5, 0.125), fraction = 0.10,n.samples = 1000)
+
+## ------------------------------------------------------------------------
+confinterval.metaprofile(mat, alpha = 0.05)
+
+## ------------------------------------------------------------------------
+bootstrapped.confinterval.metaprofile(mat, alpha = 0.05, n.samples = 300)
+
+## ------------------------------------------------------------------------
+metaprofile.bigWig(bed6, bw.plus, bw.minus = bw.minus, step = 50000, name = "Signal",
+                  matrix.op = NULL, profile.op = quantiles.metaprofile)
+
+## ------------------------------------------------------------------------
+metaprofile.bigWig(bed6, bw.plus, bw.minus = bw.minus, step = 50000, name = "Signal",
+                  matrix.op = NULL, profile.op = bootstrapped.confinterval.metaprofile, alpha=0.05, n.samples=1000)
+
+## ------------------------------------------------------------------------
+# Original mat
+mat
+
+rpkm.scale(mat, step=50000, libSize=1000000)
+
+## ------------------------------------------------------------------------
+densityToOne.scale(mat, na.on.zero = TRUE)
+
+## ----echo=FALSE----------------------------------------------------------
+mat1=matrix(c(0,4,0,9), nrow=2, ncol=2)
+
+## ------------------------------------------------------------------------
+#Original Matrix
+mat1
+
+densityToOne.scale(mat1, na.on.zero = TRUE)
+densityToOne.scale(mat1, na.on.zero = FALSE)
+
+## ------------------------------------------------------------------------
+#Original Matrix
+mat
+maxToOne.scale(mat)
+mat1
+maxToOne.scale(mat1)
+
+## ------------------------------------------------------------------------
+mat
+maxToOne.scale(mat)
+
+## ------------------------------------------------------------------------
+mat1
+maxToOne.scale(mat1)
+
+## ----echo=FALSE----------------------------------------------------------
+mat2=matrix(c(2,4,2,9), nrow=2, ncol=2)
+
+## ------------------------------------------------------------------------
+mat2
+zeroToOne.scale(mat2)
+
+## ------------------------------------------------------------------------
+metaprofile.bigWig(bed6, bw.plus, bw.minus = bw.minus, step = 50000, name = "Signal",
+                  matrix.op = zeroToOne.scale,
+                  profile.op = bootstrapped.confinterval.metaprofile)
+
+## ------------------------------------------------------------------------
+x=metaprofile.bigWig(bed6, bw.plus, bw.minus = bw.minus, step = 50000, name = "Signal",
+                  matrix.op = NULL, profile.op = confinterval.metaprofile)
+
+plot.metaprofile(x, minus.profile = NULL, X0 = x$X0,
+      draw.error = TRUE, col = c("red", "blue", "lightgrey", "lightgrey"),
+      ylim = NULL, xlim = NULL, xlab = "Distance (bp)", ylab = x$name)
+
+## ------------------------------------------------------------------------
+x=metaprofile.bigWig(bed6, bw.plus, bw.minus = bw.minus, step = 50000, name = "Signal",
+                  matrix.op = NULL, profile.op = confinterval.metaprofile)
+xr=metaprofile.bigWig(bed6, bw.minus, bw.minus = bw.plus, step = 50000, name = "Signal",
+                  matrix.op = NULL, profile.op = confinterval.metaprofile)
+plot.metaprofile(x, minus.profile = xr, X0 = x$X0,
+       draw.error = TRUE, col = c("red", "blue", "lightgrey", "lightgrey"),
+       ylim = NULL, xlim = NULL, xlab = "Distance (bp)", ylab = x$name)
+
+## ------------------------------------------------------------------------
+plot.metaprofile(x, minus.profile = xr, X0 = 25000,
+      draw.error = TRUE, col = c("red", "blue", "lightgrey", "lightgrey"),
+      ylim = NULL, xlim = NULL, xlab = "Distance (bp)", ylab = x$name)
+
+## ------------------------------------------------------------------------
+plot.metaprofile(x, minus.profile = xr, X0 = 25000,
+      draw.error = TRUE, col = c("red", "blue", "lightgrey", "lightgrey"),
+      ylim = c(-500,500), xlim = c(-1000, 50000), xlab = "Distance (bp)", ylab = x$name)
+
+## ------------------------------------------------------------------------
+plot.metaprofile(x, minus.profile = xr, X0 = 25000,
+                draw.error = FALSE, col = c("red", "blue", "lightgrey", "lightgrey"),
+                ylim = NULL, xlim = NULL, xlab = "Distance (bp)", ylab = x$name)
+
+## ------------------------------------------------------------------------
+colors()[1:25]
+
+## ------------------------------------------------------------------------
+plot.metaprofile(x, minus.profile = xr, X0 = 25000,
+                draw.error = TRUE, col = c("green", "yellow", "purple", "grey"),
+                ylim = NULL, xlim = NULL, xlab = "Distance (bp)", ylab = x$name)
+

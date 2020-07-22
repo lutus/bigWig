@@ -78,18 +78,16 @@ library(bigWig)
 ```
 For these examples, we will use PRO-seq data from [GSE126919_RAW](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE126919).
 
-Download the tar ball and unpack it in a local directory of your choice. Then in R make sure that you define the directory and filename.
+Download the bigWig file.
 ```{r eval=FALSE}
-#directory where data is stored
-dtDir='/home/directory'
-# specific bigWig file being used
-dtFn='GSM3618124_HEK293T_TIR1_Cl4_3hrDMSO_rep1_minus_body_0-mer.bigWig'
-```
-```{r echo=FALSE}
-#directory where data is stored
-dtDir='/home/lutus/_projects/_dev/guertin/bigWig/workflow/_data/GSE126919_RAW/'
-# specific bigWig file being used
-dtFn='GSM3618124_HEK293T_TIR1_Cl4_3hrDMSO_rep1_minus_body_0-mer.bigWig'
+
+system('wget https://ftp.ncbi.nlm.nih.gov/geo/samples/GSM3618nnn/GSM3618124/suppl/GSM3618124%5FHEK293T%5FTIR1%5FCl4%5F3hrDMSO%5Frep1%5Fminus%5Fbody%5F0%2Dmer%2EbigWig')
+
+system(wget https://ftp.ncbi.nlm.nih.gov/geo/samples/GSM3618nnn/GSM3618124/suppl/GSM3618124%5FHEK293T%5FTIR1%5FCl4%5F3hrDMSO%5Frep1%5Fplus%5Fbody%5F0%2Dmer%2EbigWig')
+
+# specific bigWig files being used
+dtFn.minus='GSM3618124_HEK293T_TIR1_Cl4_3hrDMSO_rep1_minus_body_0-mer.bigWig'
+dtFn.plus='GSM3618124_HEK293T_TIR1_Cl4_3hrDMSO_rep1_plus_body_0-mer.bigWig'
 ```
 
 ## bigWig utilities

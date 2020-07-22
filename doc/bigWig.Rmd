@@ -42,7 +42,7 @@ bigWig package is written to analyze bigWig files. Functions in this package are
 
 ## Install package
 
-Since bigWig is not available on CRAN, we can not use the basic `install.packages('bigWig')`. However, there are several ways to install packages. Here I will explain 2 of them.
+Since bigWig is not available on CRAN, we can not use the basic `install.packages('bigWig')`. However, there are several ways to install packages. Here I will explain installation from GitHub and loacally stored source files.
 
 ### From Github
 
@@ -60,7 +60,7 @@ devtools::install_github(pkgLoc, subdir=subFld)
 
 ### From local directory
 
-If you don't have an internet connection or don't use github, you can build from the sources file.
+Use the following commands to build from the source files.
 ```{r eval=FALSE}
 #install devtools if necessary
 install.packages("devtools")

@@ -13,7 +13,7 @@ author:
 output:
   BiocStyle::html_document:
     toc_float: true
-  BiocStyle::pdf_document: default
+  BiocStyle::pdf_document:
 package: bigWig
 abstract: |
   Querying of _bigWig_ files in _R_

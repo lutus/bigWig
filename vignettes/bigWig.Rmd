@@ -252,7 +252,7 @@ region.probeQuery.bigWig(bw, chrom, start, end,
 All `bpQuery` functions are insensitive to the structure of the original _bigWig_ file, because each base position is evaluated separately. However, `probeQuery` functions consider each genomic interval as a separate entity, or _probe_, and evalates them separately. The following `region.probeQuery.bigWig` evaluations highlight the different outputs that result from differentially structured _bigWig_ files that have identical values at each genomic position (see Figure \@ref(fig:bigWigs)). Note that the output for each command is the sum of the `value` column output from the first code chunk in Section \@ref(struc).  
 ```{r eval=TRUE}
 region.probeQuery.bigWig(bw.probes, 'chr1', 100, 115, op = 'sum')
-region.probeQuery.bigWig(bw.separateprobes, 'chr1', 100, 115, op = 'sum')
+region.probeQuery.bigWig(bw.splitprobes, 'chr1', 100, 115, op = 'sum')
 region.probeQuery.bigWig(bw.bp, 'chr1', 100, 115, op = 'sum')
 ```
 

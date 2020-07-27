@@ -17,7 +17,7 @@ abstract: |
   Querying of _bigWig_ files in _R_
 vignette: >
   %\VignetteIndexEntry{bigWig}
-  %\VignetteEngine{rmarkdown::render}
+  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 

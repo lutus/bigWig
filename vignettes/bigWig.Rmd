@@ -6,7 +6,7 @@ header-includes:
 author:
 - name: Luther Vucic
   affiliation: James Madison University, Harrisonburg, Virginia
-- name: Andr\'e Luis Matins 
+- name: André Luis Matins 
   affiliation: Cornell University, Ithaca, New York
 - name: Michael J. Guertin
   affiliation: University of Virginia, Charlottesville, Virginia

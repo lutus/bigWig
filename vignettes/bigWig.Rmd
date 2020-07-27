@@ -12,7 +12,8 @@ author:
   affiliation: University of Virginia, Charlottesville, Virginia
 output:
   BiocStyle::html_document:
-      number_sections: true
+    toc_float: true
+  BiocStyle::pdf_document: default
 package: bigWig
 abstract: |
   Querying of _bigWig_ files in _R_

@@ -11,7 +11,8 @@ author:
 - name: Michael J. Guertin
   affiliation: University of Virginia, Charlottesville, Virginia
 output:
-  BiocStyle::html_document
+  BiocStyle::html_document:
+      number_sections: true
 package: bigWig
 abstract: |
   Querying of _bigWig_ files in _R_
@@ -371,7 +372,7 @@ bed6
 
 ### BED transformations
 
-These 3 functions take an original BED file and transform each rows start and end columns. The functions differ by the anchor point of the window. These functions are strand specific, so if they are passed a BED6 file, `threeprime.bed` and `fiveprime.bed`, upstream and downstream are relative to teh strand information.
+These 3 functions take an original BED file and transform each rows start and end columns. The functions differ by the anchor point of the window. These functions are strand specific, so if they are passed a BED6 file, `threeprime.bed` and `fiveprime.bed`, upstream and downstream are relative to the strand information.
 
 ```{r eval=FALSE}
 center.bed(bed, upstreamWindow, downstreamWindow)

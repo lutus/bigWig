@@ -24,7 +24,6 @@ vignette: |
 ---
 
 
-
 # Prerequisites
 
 The R _bigWig_ libraries require an _R_ version of >= 2.12.0.

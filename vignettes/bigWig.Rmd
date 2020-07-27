@@ -17,13 +17,13 @@ output:
 package: bigWig
 abstract: |
   Querying of _bigWig_ files in _R_
-vignette: |
+vignette: >
   %\VignetteIndexEntry{bigWig}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-
+  
 # Prerequisites
 
 The R _bigWig_ libraries require an _R_ version of >= 2.12.0.

@@ -738,7 +738,7 @@ function toggle_visibility(id1) {
 
 
 <h1 class="title toc-ignore">bigWig</h1>
-<p class="author-name">Luther Vucic<span class="affil-mark">1</span>, Andr\'e Luis Matins<span class="affil-mark">2</span> and Michael J. Guertin<span class="affil-mark">3</span></p>
+<p class="author-name">Luther Vucic<span class="affil-mark">1</span>, Andr\'eé Luis Matins<span class="affil-mark">2</span> and Michael J. Guertin<span class="affil-mark">3</span></p>
 <p class="author-affiliation"><span class="affil-mark">1</span>James Madison University, Harrisonburg, Virginia<br><span class="affil-mark">2</span>Cornell University, Ithaca, New York<br><span class="affil-mark">3</span>University of Virginia, Charlottesville, Virginia</p>
 <h4 class="date">27 July 2020</h4>
 <h4 class="abstract">Abstract</h4>
@@ -901,7 +901,7 @@ bw=load.bigWig(&#39;../inst/extdata/bp.bigWig&#39;)</code></pre>
 <pre class="r"><code># list all attributes
 attributes(bw)</code></pre>
 <pre><code>## $handle_ptr
-## &lt;pointer: 0x6000007d43f0&gt;
+## &lt;pointer: 0x6000007b7690&gt;
 ## 
 ## $names
 ##  [1] &quot;version&quot;          &quot;isCompressed&quot;     &quot;isSwapped&quot;       
@@ -955,11 +955,15 @@ bw$basesCovered</code></pre>
 <pre class="r"><code>#destroy C object
 unload.bigWig(bw)
 ls()</code></pre>
-<pre><code>## [1] &quot;bw&quot;</code></pre>
+<pre><code>##  [1] &quot;bed&quot;            &quot;bed6&quot;           &quot;bed6loc&quot;        &quot;bedloc&quot;        
+##  [5] &quot;bw&quot;             &quot;bw.bp&quot;          &quot;bw.probes&quot;      &quot;bw.probes.Q&quot;   
+##  [9] &quot;bw.splitprobes&quot; &quot;mat2&quot;</code></pre>
 <pre class="r"><code>#remove variable in R
 remove(bw)
 ls()</code></pre>
-<pre><code>## character(0)</code></pre>
+<pre><code>## [1] &quot;bed&quot;            &quot;bed6&quot;           &quot;bed6loc&quot;        &quot;bedloc&quot;        
+## [5] &quot;bw.bp&quot;          &quot;bw.probes&quot;      &quot;bw.probes.Q&quot;    &quot;bw.splitprobes&quot;
+## [9] &quot;mat2&quot;</code></pre>
 </div>
 </div>
 <div id="query.bigwig" class="section level2" number="4.2">

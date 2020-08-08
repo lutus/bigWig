@@ -357,11 +357,11 @@ region.bpQuery.bigWig(bw.probes, 'chr1', 80, 90, op = 'avg', gap.value=100)
 
 ## BED utilities
 
-These functions are used to manipulate BED files.
+These functions are used to manipulate _BED_ files.
 
 ### BED format
 
-A standard three column BED file is a tab delimited file that consists
+A standard three column _BED_ file is a tab delimited file that consists
 of the chromosome name, the starting, and ending positions of the
 genomic interval. A BED6 file contains all of the BED columns plus 3 more: name, score, and strand. Only the strand column is considered for `bed6` functions described here. Strand defines whether the BED track interval refers to the + or - stand of DNA. More information can be found on [UCSC website](https://genome.ucsc.edu/FAQ/FAQformat.html#format1). BED files are saved with a .bed extension. The `bigWig` package operates on bed-formatted files that are loaded as data.frames into _R_.
 
@@ -372,16 +372,17 @@ Load a BED file is to use R's `read.table` function, which converts the tab deli
 First set file location to a variable like `bedloc` and read in the file. The  `header` argument refers whether the columns are named in the first row. BED files don't usually include headers so we can set `header=FALSE`. If track information or miscellaneous information lines. If there are lines prior ot the coordinate information, use the `skip=` argument to skip the number of lines that precede the genomic intervals.
 
 ```{r eval =TRUE, echo=TRUE}
-bedloc='../inst/extdata/testBED1.bed'
-bed=read.table(bedloc, header=FALSE, sep='\t', stringsAsFactors=FALSE)
+bed=read.table('../inst/extdata/testBED1.bed',
+             header=FALSE, sep='\t', stringsAsFactors=FALSE)
 bed
 ```
 
-To create a BED6 file, you need to define the following columns: `chrom`, `start`, `end`, `name`, `score` and `strand`. `bigWig` functions don't use `name` and `score`. In the following example we used place holders 'na' for `name` and 1 for `score`.
+To create a _BED6_ file, you need to define the following columns: `chrom`, `start`, `end`, `name`, `score` and `strand`. `bigWig` functions don't use `name` and `score`. In the following example we used place holders 'na' for `name` and 1 for `score`.
 
 ```{r eval =TRUE, echo=TRUE}
-bed6loc='../inst/extdata/testBED1_strand.bed'
-bed6=read.table(bed6loc, header=FALSE, sep='\t', stringsAsFactors=FALSE)
+
+bed6=read.table('../inst/extdata/testBED1_strand.bed',
+             header=FALSE, sep='\t', stringsAsFactors=FALSE)
 bed6
 ```
 
@@ -389,7 +390,7 @@ bed6
 
 These 3 functions take an original BED file and transform each rows
 start and end columns. The functions differ by the anchor point of the
-window. These functions are strand specific. For a BED6 file,
+window. These functions are strand specific. For a _BED6_ file,
 `threeprime.bed` and `fiveprime.bed` refers to upstream and downstream
 are relative to the strand information. The primary usage of theese
 transformations is to generate constant windows anchored on a genomic
@@ -441,7 +442,7 @@ center.bed(bed6, upstreamWindow = 0, downstreamWindow = 0)
 
 
  
-__Windows Equal and Positive__
+__Equal and Positive Windows__
 
  Often when we query signal _bigWig_ tracks around transcription
  factor binding sites or sequence motifs, the `upstreamWindow` and `downstreamWindow` are equal and positive.
@@ -597,7 +598,7 @@ Everything is wrapped into a function `sizes.bed`.
 
 `sizes` creates a vector of length N of zeros. This will be used in the `foreach.bed` function as the return.
 
-Then the `foreach.bed` function is called. The `bed` file is passed in as well as the `function`. 
+Then the `foreach.bed` function is called. The `bed` file is passed in, as well as the `function`. 
 
 `func` iterates through all _i_'s calculating the window size, `end -
 start`, and setting the corresponding place in the vector, `sizes[i]`,
@@ -605,8 +606,7 @@ equal to the window size.
 
 `sizes.bed` then returns the vector sizes. The result is a vector of length `N` of window sizes.
 
-Obviously,`sizes =
-bed[,3] - bed[,2]` is much faster, but the function can be designed as 
+Obviously,`sizes = bed[,3] - bed[,2]` is much faster, but the function can be designed as 
 complicated as necessary.
 
 
@@ -637,9 +637,9 @@ bed.region.probeQuery.bigWig(bw, bed, op = "wavg",
 
 This function is an extension of `region.bpQuery.bigWig` and operates
 identically, except the the region `chrom`, `start`, and `end` is
-defined by the corresponding column of a BED _data.frame_. The output
+defined by the corresponding column of a _BED_ _data.frame_. The output
 is a vector that is equal in length to the number of rows of the BED
-_data.frame_. The vectors's index corresponds to the BED _data.frame_
+_data.frame_. The vectors's index corresponds to the _BED_ _data.frame_
 row index.
 
 
@@ -829,8 +829,8 @@ The `bed6.step` function operates like the `bed6.region` function, but the inter
 
 bed6.step.bpQuery.bigWig(bw.plus, bw.minus, bed6, step,
                        op = "sum", abs.value = FALSE, gap.value = 0,
-                       bwMap = NULL, with.attributes = TRUE, as.matrix = FALSE,
-                       follow.strand = FALSE)
+                       bwMap = NULL, with.attributes = TRUE, 
+                       as.matrix = FALSE, follow.strand = FALSE)
 
 bed6.step.probeQuery.bigWig(bw.plus, bw.minus, bed6, step,
                        op = "wavg", abs.value = FALSE, gap.value = NA,
@@ -858,6 +858,7 @@ step size.
     result is a matrix, otherwise it's a list of vectors, one per
     query 'BED' entry.
 
+To highlight the `as.matrix` and `follow.strand` functionality, we sum the signal of PRO-seq _bigWig_ files around transcription start sites. The `as.matrix` option returns a matrix and each row corresponds to the respective row of the _bed6_ data.frame and each column is a window the size of the step (10) that spans the 500 base pair interval.
 
 
 ```{r eval=TRUE}
@@ -870,8 +871,15 @@ bedTSSwindow=fiveprime.bed(bedTSS, upstreamWindow = 249,
 
 tss.matrix = bed6.step.bpQuery.bigWig(plusPRO, minusPRO, bedTSSwindow,
                   step = 10, as.matrix=TRUE, follow.strand=TRUE)
+colnames(tss.matrix) = seq(-245, 254, by = 10)
+rownames(tss.matrix) = bedTSSwindow[,5]
+head(tss.matrix)
+```
 
-plot(seq(-249, 250, by = 10),colSums(tss.matrix),
+The `follow.strand` argument orients the _bed6_ intervals so that downstream and upstream are relative to the `strand` in column 6. Using PRO-seq data below with `follow.strand=TRUE`, we observe a RNA Polymerase paused peak just downstream of the TSS. However, if `follow.strand` is not invoked, the - and + strand signals accumulate upstream and downstream, respectively, of the central position. 
+
+```{r eval=TRUE}
+plot(seq(-249, 250, by = 10),colMeans(tss.matrix),
                   xlab = 'stranded TSS position',
                   ylab = 'bigWig intensity', type = "l")
 
@@ -879,7 +887,7 @@ tss.matrix.notStrand = bed6.step.bpQuery.bigWig(plusPRO, minusPRO,
                   bedTSSwindow, step = 10, as.matrix=TRUE,
                   follow.strand=FALSE)
 
-plot(seq(-249, 250, by = 10),colSums(tss.matrix.notStrand),
+plot(seq(-249, 250, by = 10),colMeans(tss.matrix.notStrand),
                   xlab = 'absolute TSS position',
                   ylab = 'bigWig intensity', type = "l")
 
@@ -887,7 +895,7 @@ plot(seq(-249, 250, by = 10),colSums(tss.matrix.notStrand),
 
 ##  Mappability
     
-When counting reads within intervals, it can be inappropriate to include a count of zero if the genomic coordinate is not uniquely mappable at a given read length. By convention, a mappability bigWig indicates mappable positions as 0 and unmappable as 1. Raw data in underlying bigWig file marks a position as unmappable if the read that starts at that position is unmappable in the plus strand (obviously dependent on read length).
+When counting reads within intervals, it can be inappropriate to include a count of zero if the genomic coordinate is not uniquely mappable at a given read length. By convention, a mappability _bigWig_ indicates mappable positions as 0 and unmappable as 1. Raw data in underlying _bigWig_ file marks a position as unmappable if the read that starts at that position is unmappable in the plus strand (obviously dependent on read length).
     
 
 ```{r eval=FALSE}
@@ -903,7 +911,8 @@ load.bwMap(filename, read.len, read.left.edge,
   + `udcDir` is a character string giving the name of the folder to use as a local cache when accessing remote files. Set to NULL to use the default location (/tmp/udcCache).
 
 ```{r eval=TRUE}
-bigwig.map=load.bwMap('../inst/extdata/bwMap.bigWig', read.len = 30, read.left.edge=FALSE, threshold.fraction = 0.19)
+bigwig.map=load.bwMap('../inst/extdata/bwMap.bigWig', read.len = 30,
+                       read.left.edge=FALSE, threshold.fraction = 0.19)
 #structure of the bigWig:
 #chr1	105	106	1
 #chr1	107	108	1
@@ -962,18 +971,24 @@ knitr::include_graphics("../figure/bwMap.pdf")
 ```{r eval=TRUE}
 
 #what base does each bwMap refer to?
-bwMap.right=load.bwMap('../inst/extdata/bwMap.bigWig', read.len = 30, read.left.edge=FALSE)
-bwMap.left=load.bwMap('../inst/extdata/bwMap.bigWig', read.len = 30, read.left.edge=TRUE)
+bwMap.right=load.bwMap('../inst/extdata/bwMap.bigWig',
+                          read.len = 30, read.left.edge=FALSE)
+bwMap.left=load.bwMap('../inst/extdata/bwMap.bigWig',
+                          read.len = 30, read.left.edge=TRUE)
 
 
-region.bpQuery.bwMap(bwMap.left, "chr1", 134, 135, strand = "-", op = "sum")
-region.bpQuery.bwMap(bwMap.left, "chr1", 105, 106, strand = "+", op = "sum")
+region.bpQuery.bwMap(bwMap.left, "chr1", 134, 135,
+                          strand = "-", op = "sum")
+region.bpQuery.bwMap(bwMap.left, "chr1", 105, 106,
+                          strand = "+", op = "sum")
 
-region.bpQuery.bwMap(bwMap.right, "chr1", 105, 106, strand = "-", op = "sum")
-region.bpQuery.bwMap(bwMap.right, "chr1", 134, 135, strand = "+", op = "sum")
+region.bpQuery.bwMap(bwMap.right, "chr1", 105, 106,
+                          strand = "-", op = "sum")
+region.bpQuery.bwMap(bwMap.right, "chr1", 134, 135,
+                          strand = "+", op = "sum")
 ```
 
-The operation that in introduced with mappability function is `thresh`. It is reasonable to consider intervals as mappable as long as the average mappability of an interval exceeds a threshold. Here `thresh` refers to the average _unmappability_, since a value of 1 indicates the position is not mappable. Therefore, a threshold of 0.2 means that if 20% or more of the positions in the interval are not mappable, then the entire interval is considered to be unmappable.  
+The operation that in introduced with mappability function is `thresh`. It is reasonable to consider intervals as mappable only if the average mappability of an interval exceeds a threshold. Here `thresh` refers to the average _unmappability_, since a value of 1 indicates the position is not mappable. Therefore, a threshold of 0.2 means that if 20% or more of the positions in the interval are not mappable, then the entire interval is considered to be unmappable.  
 ```{r eval=TRUE}
 #illustrate threshold
 bwMap=load.bwMap('../inst/extdata/bwMap.bigWig', read.len = 30, read.left.edge=FALSE, threshold.fraction = 0.2)
@@ -1210,7 +1225,6 @@ metaprofile.bigWig(bed6, bw.plus, bw.minus = bw.minus, step = 50000, name = "Sig
                   profile.op = bootstrapped.confinterval.metaprofile)
 ```
 
-## bwMap
 
 ## plots.bigWig
 

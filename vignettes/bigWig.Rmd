@@ -967,10 +967,10 @@ in column 6
 knitr::include_graphics("../figure/bwMap.pdf")
 ```
 
+The following four queries all refer to the unmappable position chr1:105-106 in the _bwMap.bigWig_ file. The query region specifying this signal is either chr1:105-106 or 30 bases away, at chr1:134-135, depending upon `read.left.edge` argument and `strand` argument. 
 
 ```{r eval=TRUE}
 
-#what base does each bwMap refer to?
 bwMap.right=load.bwMap('../inst/extdata/bwMap.bigWig',
                           read.len = 30, read.left.edge=FALSE)
 bwMap.left=load.bwMap('../inst/extdata/bwMap.bigWig',
@@ -990,7 +990,7 @@ region.bpQuery.bwMap(bwMap.right, "chr1", 134, 135,
 
 The operation that in introduced with mappability function is `thresh`. It is reasonable to consider intervals as mappable only if the average mappability of an interval exceeds a threshold. Here `thresh` refers to the average _unmappability_, since a value of 1 indicates the position is not mappable. Therefore, a threshold of 0.2 means that if 20% or more of the positions in the interval are not mappable, then the entire interval is considered to be unmappable.  
 ```{r eval=TRUE}
-#illustrate threshold
+
 bwMap=load.bwMap('../inst/extdata/bwMap.bigWig', read.len = 30, read.left.edge=FALSE, threshold.fraction = 0.2)
 region.bpQuery.bwMap(bwMap, "chr1", 130, 135, strand = "+", op = "avg")
 region.bpQuery.bwMap(bwMap, "chr1", 130, 136, strand = "+", op = "avg")

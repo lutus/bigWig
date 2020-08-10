@@ -3,6 +3,7 @@ title: "bigWig"
 header-includes:
 - \usepackage{color}
 - \usepackage{float}
+- \DeclareUnicodeCharacter{2212}{-}
 author:
 - name: Luther Vucic
   affiliation: James Madison University, Harrisonburg, Virginia
@@ -1177,11 +1178,11 @@ plot.metaprofile(x, minus.profile = y, X0 = 250,
 
 
 
-## Matrix Scaling
+## Matrix Scaling 
 
-These functions scale counts matrices.
+The following functions scale counts matrices
 
-```r eval=FALSE
+```{r eval=FALSE}
 rpkm.scale(mat, step, libSize)
 
 densityToOne.scale(mat, na.on.zero = TRUE)

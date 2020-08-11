@@ -1267,22 +1267,23 @@ metaprofile.bigWig(bed6, bw.plus, bw.minus = bw.minus, step = 1,
                   name = "Signal", matrix.op = zeroToOne.scale)
 ```
 
-```{r eval=FALSE}
+The `matrix.op` and `profile.op` options are processed by `metaprofile.bigWig` and the resultant metaprofile instance can be passed to `plot.metaprofile`. We chose `X0 = 255` to center the plot because the _bedTSSwindow_ was 500 and the step is specified as 10--a quick `X0` calculation for a composite profile centered on a feature is the sum of the window and the step divided by 2.
+
+```{r eval=TRUE, fig.cap ="Composite PRO-seq profiles."}
 composite.plus = metaprofile.bigWig(bedTSSwindow, plusPRO,
-                 bw.minus = minusPRO, step = 50, name = "Signal",
+                 bw.minus = minusPRO, step = 10, name = "Signal",
                  matrix.op = zeroToOne.scale,
                  profile.op = bootstrapped.confinterval.metaprofile,
-                 alpha = 0.05, n.samples = 1000)
+                 alpha = 0.05, n.samples = 200)
 
 composite.min = metaprofile.bigWig(bedTSSwindow, minusPRO,
-                 bw.minus = plusPRO, step = 50, name = "Signal",
+                 bw.minus = plusPRO, step = 10, name = "Signal",
                  matrix.op = zeroToOne.scale,
                  profile.op = bootstrapped.confinterval.metaprofile,
-                 alpha = 0.05, n.samples = 1000)
+                 alpha = 0.05, n.samples = 200)
 
-plot.metaprofile(composite.plus, minus.profile = composite.min, X0 = 275,
+plot.metaprofile(composite.plus, minus.profile = composite.min, X0 = 255,
       draw.error = TRUE, col = c("red", "blue", "lightgrey", "lightgrey"),
-      ylim = NULL, xlim = c(-225,225), xlab = "Distance (bp)",
-      ylab = "PRO-seq signal")
+      xlab = "Distance (bp)", ylab = "PRO-seq signal")
 
 ```

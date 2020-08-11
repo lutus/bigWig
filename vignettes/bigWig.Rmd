@@ -54,18 +54,17 @@ The _bigWig_ package efficiently queries _bigWig_ files over genomic intervals. 
 
 Since bigWig is not yet available on _bioconductor_, we can not use the basic `install.packages('bigWig')`. Below are installation instructions from GitHub and locally stored source files.
 
-### From Github
+### From GitHub
 
-The most up to date version of the `bigWig` pkg is located at [bigWig](https://github.com/andrelmartins/bigWig). Using `devtools`, you can download and install `bigWig` from github directly.
+The most up to date version of the `bigWig` pkg is located at [bigWig](https://github.com/andrelmartins/bigWig). Using `devtools`, you can download and install `bigWig` from GitHub directly.
 
 ```{r eval=FALSE}
 #install devtools if necessary
 install.packages("devtools")
 library('devtools')
-#location of bigWig package and subfolder
-pkgLoc='andrelmartins/bigWig'
-subFld='bigWig'
-devtools::install_github(pkgLoc, subdir=subFld)
+
+devtools::install_github('andrelmartins/bigWig',
+              subdir='bigWig')
 ```
 
 ### From local directory
@@ -117,7 +116,7 @@ bw=load.bigWig('../inst/extdata/bp.bigWig')
 ```{r eval=TRUE, echo=FALSE}
 bw=load.bigWig('../inst/extdata/bp.bigWig')
 ```
-The all of the attributes of the object can be accessed using `atrributes` and each individual can be accessed via `$`
+The all of the attributes of the object can be accessed using `atrributes` and each individual can be accessed using `$`
 
 ```{r eval=TRUE}
 # list all attributes
@@ -179,7 +178,7 @@ query.bigWig(bw, chrom, start, end, clip = TRUE)
 
 \clearpage
 ### bigWig file structure {#struc}
-`query.bigWig` allows you to search the _bigWig_ files using chromosome string (`chrom='chr1'`) and genomic window (`start=1, end = 12000`), both are integers and end is inclusive meaning it searches up to and including `end`. The query results are printed to the command line. Note how the output of query reflects the original structure of the _bigWig_ file  (Figure \@ref(fig:bigWigs)). Each row that is output from a `query.bigWig` call is a genomic interval that is referred to as a `probe` in the relevant functions.
+`query.bigWig` allows you to search the _bigWig_ files using chromosome string (`chrom='chr1'`) and genomic window (`start=1, end = 115`), both are integers and end is inclusive meaning it searches up to and including `end`. The query results are printed to the command line. Note how the output of query reflects the original structure of the _bigWig_ file  (Figure \@ref(fig:bigWigs)). Each row that is output from a `query.bigWig` call is a genomic interval that is referred to as a `probe` in the relevant functions.
 
 ```{r eval=TRUE}
 # load the three bigWigs
@@ -222,8 +221,6 @@ bw.probes.Q[1,'start']
 This section outlines `*.bpQuery.bigWig` and `*.probeQuery.bigWig` functions to highlight their diffrences and commonalities. Both functions can incorporate `bwMap` files to account for the mappability of each position in the genome. `bwMap` files come  from the calc_Mappability functions and will be discussed later on. They specify genomic interval mappability based on the sequence being repeated in the genome. 
 
 ### region query {#differences}
-
-FOR MANY FUNCTIONS THE PRESENCE OF STRAND IS CONFUSING.
 
  The _bp_ and _probe_ query functions takes a region defined by
  `chrom`, `start` and `end` and returns the result of the operation on
@@ -532,12 +529,12 @@ upstream.bed(bed, upstreamWindow)
   + upstreamWindow integer number of bases to include upstream of the anchor point.
   + downstreamWindow integer number of bases to include downstream of the anchor point.
 
-`downstream.bed` uses the original `start` point [5'] as the anchor point.
+`downstream.bed` uses the original `start` point [5$^\prime$] as the anchor point.
 
 * `start` = anchor point
 * `end` = anchor point + downstreamWindow
 
-`upstream.bed` uses the original `end` point [3'] as the anchor point.
+`upstream.bed` uses the original `end` point [3$^\prime$] as the anchor point.
 
 * `start` = anchor point - upstreamWindow
 * `end` = anchor point
@@ -674,7 +671,8 @@ bed6.region.probeQuery.bigWig(bw.plus, bw.minus, bed6,
   + `abs.value` is a logical argument which determines if the absolute value of the input is performed before the `op`.
   + `gap.value` is an integer value that replaces areas that have no overlaps
   + `with.attributes` is a logical argument that determines if the results are returned annotated with their source components and/or step size.
-    
+  + `bwMap` is an R object of class `bwMap` containing the information required to call steps or regions as unmappable.
+
 Using the `bw.plus` and `bw.minus` strands, we can evaluate a
 `bed6.region` function. First, refer to the  query for each strand as
 a reference.
@@ -813,6 +811,8 @@ site.
 #generate a bed
 bed.step=data.frame('chr1',100,106)
 bed.step[2,] = c('chr1',109,115)
+bed.step[,2] = as.numeric(bed.step[,2])
+bed.step[,3] = as.numeric(bed.step[,3])
 colnames(bed.step)=c('chrom', 'start', 'end')
 
 bed.step.bpQuery.bigWig(bw.splitprobes, bed.step, step = 2)
@@ -872,18 +872,18 @@ bedTSSwindow=fiveprime.bed(bedTSS, upstreamWindow = 249,
                   downstreamWindow = 250)
 
 tss.matrix = bed6.step.bpQuery.bigWig(plusPRO, minusPRO, bedTSSwindow,
-                  step = 10, as.matrix=TRUE, follow.strand=TRUE)
-colnames(tss.matrix) = seq(-245, 254, by = 10)
+                  step = 50, as.matrix=TRUE, follow.strand=TRUE)
+colnames(tss.matrix) = seq(-225, 274, by = 50)
 rownames(tss.matrix) = bedTSSwindow[,5]
 #filter out genes that have no signal
 tss.matrix=tss.matrix[rowSums(tss.matrix) != 0,]
-head(tss.matrix[,c(21:30)])
+head(tss.matrix)
 ```
 
 The `follow.strand` argument orients the _bed6_ intervals so that downstream and upstream are relative to the `strand` in column 6. Using PRO-seq data below with `follow.strand=TRUE`, we observe a RNA Polymerase paused peak just downstream of the TSS. 
 
 ```{r followstrand, eval=TRUE, fig.cap ="Feature-stranded composite profile. The RNA Polymerase peak results from the accumulation of reads that originate from the coding strand orientation. Therefore, it makes sense to orient the reads relative to the TSS position."}
-plot(seq(-249, 250, by = 10),colMeans(tss.matrix),
+plot(seq(-225, 274, by = 50),colMeans(tss.matrix),
                   xlab = 'stranded TSS position',
                   ylab = 'bigWig intensity', type = "l")
 ```
@@ -894,16 +894,16 @@ However, if `follow.strand` is not invoked, the - and + strand signals accumulat
 
 
 tss.matrix.notStrand = bed6.step.bpQuery.bigWig(plusPRO, minusPRO,
-                  bedTSSwindow, step = 10, as.matrix=TRUE,
+                  bedTSSwindow, step = 50, as.matrix=TRUE,
                   follow.strand=FALSE)
 tss.matrix.notStrand = tss.matrix.notStrand[rowSums(tss.matrix.notStrand) != 0,]
 
-plot(seq(-249, 250, by = 10),colMeans(tss.matrix.notStrand),
+plot(seq(-225, 274, by = 50),colMeans(tss.matrix.notStrand),
                   xlab = 'absolute TSS position',
                   ylab = 'bigWig intensity', type = "l")
 
 ```
-
+\clearpage
 ##  Mappability
     
 When counting reads within intervals, it can be inappropriate to include a count of zero if the genomic coordinate is not uniquely mappable at a given read length. By convention, a mappability _bigWig_ indicates mappable positions as 0 and unmappable as 1. Raw data in underlying _bigWig_ file marks a position as unmappable if the read that starts at that position is unmappable in the plus strand (obviously dependent on read length).
@@ -921,23 +921,6 @@ load.bwMap(filename, read.len, read.left.edge,
   + `threshold.fraction` is a numeric value indicating the maximum fraction of unmappable bases in a query region for that region to still be considered mappable (Default = 0).
   + `udcDir` is a character string giving the name of the folder to use as a local cache when accessing remote files. Set to NULL to use the default location (/tmp/udcCache).
 
-```{r eval=TRUE}
-bigwig.map=load.bwMap('../inst/extdata/bwMap.bigWig', read.len = 30,
-                       read.left.edge=FALSE, threshold.fraction = 0.19)
-#structure of the bigWig:
-#chr1	105	106	1
-#chr1	107	108	1
-#chr1	112	113	1
-
-
-#y=load.bigWig('bwMap.bigWig')
-#bwPlus=load.bigWig('bpPlus.bigWig')
-#bwMinus=load.bigWig('bpMinus.bigWig')
-#bed6=read.table('testBED1_strand.bed', header=FALSE, sep='\t', stringsAsFactors=FALSE)
-
-#bed6.region.bpQuery.bigWig(bwPlus, bwMinus, bed6, bwMap=x)
-#bed6.region.bpQuery.bigWig(bwPlus, bwMinus, bed6, bwMap=y)
-```
 
 
 
@@ -1011,7 +994,28 @@ region.bpQuery.bwMap(bwMap, "chr1", 130, 136, strand = "+", op = "thresh")
 
 ```
 
-The functions `bed6.region.bpQuery.bwMap`, `step.bpQuery.bwMap`, and `bed6.step.bpQuery.bwMap` have the same extended functionality as the corresponding `bigWig` functions described above, but intervals and step intervals are treated as described for `region.bpQuery.bwMap`.
+The functions `bed6.region.bpQuery.bwMap`, `step.bpQuery.bwMap`, and `bed6.step.bpQuery.bwMap` have the same extended functionality as the corresponding `bigWig` functions described above, but intervals and step intervals are treated as described for `region.bpQuery.bwMap`
+
+
+## bwMap argument
+All the `*.bpQuery.bigWig` functions can incorporate mappability information into the queries. The `strand` argument needs to be specified for non-`bed6` function, because mappability is dependent upon on the strand. The intervals than span unmappable positions return NA.   
+
+```{r eval=TRUE}
+bwMap = load.bwMap('../inst/extdata/bwMap.bigWig', read.len = 30,
+               read.left.edge=FALSE)
+
+bed6.region.bpQuery.bigWig(bwPlus, bwMinus, bed6,
+                           bwMap=bwMap)
+```
+The `bwMap` arguments incorporates the `strand`, either from the _bed6_ data frame or the argument, with the `read.len` and `read.left.edge` attributes from the`bwMap` R object. 
+
+```{r eval=TRUE}
+bwMap.left = load.bwMap('../inst/extdata/bwMap.bigWig', read.len = 30,
+                       read.left.edge=TRUE)
+
+bed6.region.bpQuery.bigWig(bwPlus, bwMinus, bed6,
+                       bwMap=bwMap.left)
+```
 
 
 ## Metaprofiles
@@ -1029,7 +1033,7 @@ confinterval.metaprofile(mat, alpha = 0.05)
 bootstrapped.confinterval.metaprofile(mat, alpha = 0.05, n.samples = 300)
 
 metaprofile.bigWig(bed, bw.plus, bw.minus = NULL, step = 1, name = "Signal",
-           matrix.op = NULL, profile.op = subsampled.quantiles.metaprofile, ...)
+        matrix.op = NULL, profile.op = subsampled.quantiles.metaprofile, ...)
 ```
 
 + arguments
@@ -1059,7 +1063,7 @@ The main input for all of these functions is a matrix, `mat`. Each row in the be
 
 ### quantiles
 
-`quantiles.metaprofile` invokes _R_'s `quantile` function for each column of the matrix; passing  _tss.matrix_, to `quantiles.metaprofile` we observe that the the majority of windows are zero, because the input _bigWig_ was randomly sampled, so it is low coverage. The result of `quantiles.metaprofile` is a list of `quantile` values for the number and step size. 
+`quantiles.metaprofile` invokes _R_'s `quantile` function for each column of the matrix; passing  _tss.matrix_, to `quantiles.metaprofile` we observe that the the majority of windows are zero, because the input _bigWig_ was randomly sampled, so it is a low coverage _bigWig_. The result of `quantiles.metaprofile` is a list of `quantile` values for the number and step size. 
 
 
 ```{r eval=TRUE}
@@ -1086,7 +1090,7 @@ The `confinterval.metaprofile` function calculates confidence intervals of the m
 confinterval.metaprofile(tss.matrix, alpha = 0.05)
 ```
 
-The result is a list of confidence interval values for each step for the given `alpha` value. There are 3 different levels of confidence intervals: Top, Middle and Bottom. These are based on 2 values: the population mean, which is the mean of each column in `mat` and $\delta$, defined by:
+The result is a list of confidence interval values for each step for the given `alpha` value. There are 3 different levels of confidence intervals: top, middle, and bottom. These are based on 2 values: the population mean, which is the mean of each column in `mat` and $\delta$, defined by:
 
 $\delta=P(1-\alpha/2) * SE$
 
@@ -1094,9 +1098,9 @@ whereby SE is the Standard Error of the column.
 
 Using this $\delta$ and the following means:
 
-$Top = mean + \delta$ \
-$Middle = mean$ \
-$Bottom = mean - \delta$ \
+$top = mean + \delta$ \
+$middle = mean$ \
+$bottom = mean - \delta$ \
 
 ### bootstraped confidence intervals
 
@@ -1106,7 +1110,8 @@ uses multiple samples to form a distribution. From these,
 the Central Limit Theorem is applied to determine the confidence interval of each column. This tends to be a more robust calculation of the confidence interval and more `n.samples` provides a better estimation.
 
 ```{r eval=TRUE}
-bootstrapped.confinterval.metaprofile(tss.matrix, alpha = 0.05, n.samples = 300)
+bootstrapped.confinterval.metaprofile(tss.matrix, alpha = 0.05,
+                                         n.samples = 300)
 ```
 
 
@@ -1119,7 +1124,7 @@ tss.matrix = bed6.step.bpQuery.bigWig(plusPRO, minusPRO, bedTSSwindow,
 
 ```{r eval=TRUE}
 metaprofile.bigWig(bedTSSwindow, plusPRO, bw.minus = minusPRO,
-                 step = 10, name = "Signal", matrix.op = NULL,
+                 step = 50, name = "Signal", matrix.op = NULL,
                  profile.op = quantiles.metaprofile)
 ```
 
@@ -1127,7 +1132,7 @@ This function automatically creates the `mat` variable and will use the default 
 
 ```{r eval=TRUE}
 metaprofile.bigWig(bedTSSwindow, plusPRO, bw.minus = minusPRO,
-                 step = 10, name = "Signal", matrix.op = NULL,
+                 step = 50, name = "Signal", matrix.op = NULL,
                  profile.op = bootstrapped.confinterval.metaprofile,
                  alpha=0.05, n.samples=1000)
 ```
@@ -1160,18 +1165,18 @@ First generate `metaprofile.bigWig` objects for the reads aligning to the coding
 ```{r metaprofile, eval=TRUE, fig.cap ="Composite metagene profiles of RNA polymerase density. PRO-seq signal accumulates at the RNA pausing site downstream of the TSS and there is a divergent RNA polymerse peak in the opposite orientation."}
 
 x = metaprofile.bigWig(bedTSSwindow, plusPRO, bw.minus = minusPRO,
-                 step = 10, name = "Signal", matrix.op = NULL,
+                 step = 50, name = "Signal", matrix.op = NULL,
                  profile.op = bootstrapped.confinterval.metaprofile,
                  alpha=0.05, n.samples=1000)
 
 y = metaprofile.bigWig(bedTSSwindow, minusPRO, bw.minus = plusPRO,
-                 step = 10, name = "Signal", matrix.op = NULL,
+                 step = 50, name = "Signal", matrix.op = NULL,
                  profile.op = bootstrapped.confinterval.metaprofile,
                  alpha=0.05, n.samples=1000)
 
-plot.metaprofile(x, minus.profile = y, X0 = 250,
+plot.metaprofile(x, minus.profile = y, X0 = 275,
       draw.error = TRUE, col = c("red", "blue", "lightgrey", "lightgrey"),
-      ylim = NULL, xlim = c(-200,200), xlab = "Distance (bp)",
+      ylim = NULL, xlim = c(-225,225), xlab = "Distance (bp)",
       ylab = "PRO-seq signal")
 
 ```
@@ -1263,15 +1268,21 @@ metaprofile.bigWig(bed6, bw.plus, bw.minus = bw.minus, step = 1,
 ```
 
 ```{r eval=FALSE}
-metaprofile.bigWig(bedTSSwindow, plusPRO, bw.minus = minusPRO,
-                 step = 10, name = "Signal",  matrix.op = zeroToOne.scale,
+composite.plus = metaprofile.bigWig(bedTSSwindow, plusPRO,
+                 bw.minus = minusPRO, step = 50, name = "Signal",
+                 matrix.op = zeroToOne.scale,
                  profile.op = bootstrapped.confinterval.metaprofile,
-                 alpha=0.05, n.samples=1000)
+                 alpha = 0.05, n.samples = 1000)
 
-metaprofile.bigWig(bedTSSwindow, plusPRO, bw.minus = minusPRO,
-                 step = 10, name = "Signal",  matrix.op = zeroToOne.scale,
-                 profile.op = bootstrapped.confinterval.metaprofile)
+composite.min = metaprofile.bigWig(bedTSSwindow, minusPRO,
+                 bw.minus = plusPRO, step = 50, name = "Signal",
+                 matrix.op = zeroToOne.scale,
+                 profile.op = bootstrapped.confinterval.metaprofile,
+                 alpha = 0.05, n.samples = 1000)
+
+plot.metaprofile(composite.plus, minus.profile = composite.min, X0 = 275,
+      draw.error = TRUE, col = c("red", "blue", "lightgrey", "lightgrey"),
+      ylim = NULL, xlim = c(-225,225), xlab = "Distance (bp)",
+      ylab = "PRO-seq signal")
 
 ```
-
-

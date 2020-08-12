@@ -906,7 +906,8 @@ plot(seq(-225, 274, by = 50),colMeans(tss.matrix.notStrand),
 \clearpage
 ##  Mappability
     
-When counting reads within intervals, it can be inappropriate to include a count of zero if the genomic coordinate is not uniquely mappable at a given read length. By convention, a mappability _bigWig_ indicates mappable positions as 0 and unmappable as 1. Raw data in underlying _bigWig_ file marks a position as unmappable if the read that starts at that position is unmappable in the plus strand (obviously dependent on read length).
+When counting reads within intervals, it can be inappropriate to include a count of zero if the genomic coordinate is not uniquely mappable at a given read length. By convention, a mappability _bigWig_ indicates mappable positions as 0 and unmappable as 1. Raw data in underlying _bigWig_ file marks a position as unmappable if the read that starts at that position is unmappable in the plus strand (obviously dependent on read length). The following repository provides instruction for generating a _bigWig_ mappability file: \
+https://github.com/andrelmartins/bigWig/tree/master/calc_mappability
     
 
 ```{r eval=FALSE}

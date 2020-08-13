@@ -32,7 +32,7 @@ The R _bigWig_ libraries require an _R_ version of >= 2.12.0.
 
 
 # Introduction
-The _bigWig_ package efficiently queries _bigWig_ files over genomic intervals. The functions provide several counting variations, including over a region or step-wise. The functions can incorporate a mappability file, which determines areas of the genome that are not mappable at a specified K-mer and excludes them from calculations. Additional functions calcualte statistics and scale the data. Graphing functions are used to display data. The following definitions are used throughout the vignette:
+The _bigWig_ package efficiently queries _bigWig_ files over genomic intervals. The functions provide several counting variations, including over a region or step-wise. The functions can incorporate a mappability file, which determines areas of the genome that are not mappable at a specified K-mer and excludes them from calculations. Additional functions calculate statistics and scale the data. Graphing functions are available for data visualization. The following definitions are used throughout the vignette:
 
 * __Genomic interval__ is the basic unit that all of these functions and is a segment of a genome file. It is defined by listing the chromosome [`chrom=`], starting index number [`start=`] and the ending index number [`end=`].
   + Example: `chrom ='chr1', start = 23000, end = 24000`

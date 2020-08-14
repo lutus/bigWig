@@ -248,7 +248,7 @@ region.probeQuery.bigWig(bw, chrom, start, end,
                        op = "wavg", abs.value = FALSE,
                        gap.value = NA)
 ```
-* arguments
+* __arguments__
   + `bw` is the pointer of the underlying _C_ object created in `load.bigWig`
   + `chrom` is a string representing the chromosome to which the query interval belongs
   + `start` is an integer value defining the start of the query interval
@@ -596,7 +596,7 @@ foreach.bed(bed, function(i, chrom, start, end, strand) {
 }
 sizes.bed(bed)
 ```
-Everything is wrapped into a function `sizes.bed`. In the example, `N` returns the number of rows in the _BED_ data.frame, `sizes` creates a vector of length `N `of zeros. This is used in the `foreach.bed` function as the return. When`foreach.bed` is called, the _BED_ data.frame and the `function` are passed as inputs. `func` iterates through all _i_'s calculating the window size, `end -
+Everything is wrapped into a function `sizes.bed`. In the example, `N` returns the number of rows in the _BED_ data.frame, `sizes` creates a vector of length `N `of zeros. This is used in the `foreach.bed` function as the return. When `foreach.bed` is called, the _BED_ data.frame and the `function` are passed as inputs. `func` iterates through all _i_'s calculating the window size, `end -
 start`, and setting the corresponding place in the vector, `sizes[i]`, equal to the window size. `sizes.bed` then returns the vector sizes. The result is a vector of length `N` of window sizes.
 
 Obviously,`sizes = bed[,3] - bed[,2]` is much faster, but the function can be designed as 

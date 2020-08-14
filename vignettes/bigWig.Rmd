@@ -5,10 +5,10 @@ header-includes:
 - \usepackage{float}
 - \DeclareUnicodeCharacter{2212}{-}
 author:
+- name: André L. Martins
+  affiliation: Cornell University, Ithaca, New York
 - name: Luther Vucic
   affiliation: James Madison University, Harrisonburg, Virginia
-- name: André Luis Matins 
-  affiliation: Cornell University, Ithaca, New York
 - name: Michael J. Guertin
   affiliation: University of Virginia, Charlottesville, Virginia
 output:
@@ -32,18 +32,16 @@ The R _bigWig_ libraries require an _R_ version of >= 2.12.0.
 
 
 # Introduction
-The _bigWig_ package efficiently queries _bigWig_ files over genomic intervals. The functions provide several counting variations, including over a region or step-wise. The functions can incorporate a mappability file, which determines areas of the genome that are not mappable at a specified K-mer and excludes them from calculations. Additional functions calculate statistics and scale the data. Graphing functions are available for data visualization. The following definitions are used throughout the vignette:
+The _bigWig_ package efficiently queries _bigWig_ files over genomic intervals. The functions perform counting operations over regions, stepwise through windows, over _BED_ formatted data frames, and with DNA strand-specificity. The functions can incorporate a mappability file, which determines areas of the genome that are not mappable at a specified k-mer and excludes these regions from calculations. Additional functions calculate statistics and scale the data. Plotting functions are available for data visualization. The following definitions are used throughout the vignette:
 
-* __Genomic interval__ is the basic unit that all of these functions and is a segment of a genome file. It is defined by listing the chromosome [`chrom=`], starting index number [`start=`] and the ending index number [`end=`].
+* __Genomic interval__ is the basic unit of these functions and is a segment of a genome file. It is defined by listing the chromosome [`chrom=`], starting index number [`start=`] and the ending index number [`end=`].
   + Example: `chrom ='chr1', start = 23000, end = 24000`
-
 * __query__ refers to the return of count metrics (raw, average, etc.) within genomic intervals. The terms __probe__ and __bp__ are used in conjunction with __query__ to specify how _bigWig_ values are treated. 
-  + __probe__ refers to each bigWig entry that spans an interval.
+  + __probe__ refers to each _bigWig_ entry that spans an interval.
   + __bp__ or __base pair__ is an individually indexed genomic position. In terms of counting, any _bp_ function treats the value associated with each nucleotide position within a _bigWig_ interval separately.
-* __region__ contains one or more genomic intervals, and at minimum
-  include [`chrom=`], [`start=`], and [`end=`] values, with an optional [`strand=`] argument.
-* __bed__ and __bed6__ are _R_ data frames containing multiple genomic intervals. Only columns 1-3 are considered for _bed_ operations, and column 6 is additionally passed for _bed6_ operations--all other columns are ignored. See UCSC's description of BED file format. [UCSC Genome](https://genome.ucsc.edu/FAQ/FAQformat.html#format1)
-* __step__ refers to dividing the genomic interval into equally sized sub-intervals. Note if the genomic interval is not a multiple of the step, an error will result.
+* __region__ contains one or more genomic intervals, which includes [`chrom=`], [`start=`], and [`end=`] values, with an optional [`strand=`] argument.
+* __bed__ and __bed6__ are _R_ data frames containing multiple genomic intervals. Only columns 1-3 are considered for _bed_ operations, and column 6 is additionally passed for _bed6_ operations--all other columns are ignored. See UCSC's description of BED file format: [UCSC Genome Browser](https://genome.ucsc.edu/FAQ/FAQformat.html#format1)
+* __step__ refers to dividing the genomic interval into equally sized sub-intervals. The genomic interval must be a multiple of the step.
 
 
 
@@ -52,24 +50,23 @@ The _bigWig_ package efficiently queries _bigWig_ files over genomic intervals. 
 
 ## Installation
 
-Since bigWig is not yet available on _bioconductor_, we can not use the basic `install.packages('bigWig')`. Below are installation instructions from GitHub and locally stored source files.
+_bigWig_ is not yet available on _Bioconductor_, so `install.packages('bigWig')` will not work. Below are installation instructions from GitHub and locally stored source files.
 
-### From GitHub
+### Install from GitHub
 
 The most up to date version of the `bigWig` pkg is located at [bigWig](https://github.com/andrelmartins/bigWig). Using `devtools`, you can download and install `bigWig` from GitHub directly.
 
 ```{r eval=FALSE}
 #install devtools if necessary
 install.packages("devtools")
-library('devtools')
 
 devtools::install_github('andrelmartins/bigWig',
               subdir='bigWig')
 ```
 
-### From local directory
+### Install from a local directory
 
-Use the following commands to build from the source files.
+After downloading and unpackaging the source files, use the following commands to install the package.
 ```{r eval=FALSE}
 
 setwd('bigWig-master')
@@ -79,31 +76,46 @@ system('R CMD INSTALL bigWig')
 \pagebreak
 # Usage
 
-After installation load the _bigWig_ package:
+After installation, load the _bigWig_ package:
 
 ```{r setup}
 library(bigWig)
 ```
 ## bigWig utilities
 
-These a functions that load, unload, query and print the information that is in each bigWig.
+These are functions that load, unload, query, and print the information within the _bigWig_ files.
 
 ### bigWig format
 
-bigWig files are genetic sequence fragments stored as indexed binary format. These files are not readily readable by humans, but the format allows for large continuous data to be stored compactly and accessed quickly.
+bigWig files are genomic intervals with corresponding intensity values that are stored in an indexed binary format. These files are not readily readable by humans, but the format allows for large continuous data to be stored compactly and accessed quickly.
 
 ### load.bigWig
 
 ```{r eval=FALSE}
 load.bigWig(filename, udcDir = NULL)
 ```
-* arguments
+* __arguments__
 
   + `filename` [required] is a string, which is either the the local file directory or URL.
 
-  + `udcDir` is a string which is the location for storing cached copies of remote files locally, while in use. These are destroyed when you unload the bigWig. If left as the default `udcDir = NULL`, then it uses `/tmp/udcCache`.
+  + `udcDir` is a string that specifies the location for storing cached copies of remote files locally while they are in use. These are destroyed when you unload the bigWig. If left as the default `udcDir = NULL`, then it uses `/tmp/udcCache`.
+* __value__
+  + Returns an object of the _bigWig_ class, which contains a C pointer (see note below) and the following accessible parts:
+     - `basesCovered`: Number of bp covered by _bigWig_ data.
+     - `chromSizes`: Integer vector with number of bases per chromosome (same order as chroms vector.
+     - `chroms`: Character vector with chromosome names for which there is data in the _bigWig_ file.
+     - `isCompressed`: Logical value indicating state of internal _bigWig_ file compression.
+     - `isSwapped`: Logical value indicating if binary representation is byte swapped (big vs. little endian).
+     - `max`: Numeric value containing the maximum value stored in the _bigWig_ file.
+     - `mean`: Numeric value containing the mean value across all covered bases in the _bigWig_ file.
+     - `min`: Numeric value containing the minimum value stored in the _bigWig_ file.
+     - `primaryDataSize`: Integer number of bytes used by data.
+     - `primaryIndexSize`: Integer number of bytes used by index.
+     - `std`: Standard deviation of bigWig values over covered bases.
+     - `version`: Integer version number for _bigWig_ file format.
+     - `zoomLevels`: Integer number of zoom level supported by _bigWig_ file.
 
-`load.bigWig` creates a `bigWig` class object in `R`. This object contains relevant information about the bigWig file and serves as a pointer to the underlying C object of the entire bigWig file. The only parameter required for this is a string of the location and filename. `udcDir` is only used if you want to keep the downloaded bigWig file locally if `filename` is a URL.
+`load.bigWig` creates a `bigWig` class object in `R`. This object contains relevant information about the bigWig file and serves as a pointer to the underlying C object of the entire _bigWig_ file. The only parameter required for this is a string of the location and filename. `udcDir` is only used if you want to keep the downloaded _bigWig_ file locally if `filename` is a URL.
 
 
 ```{r eval=FALSE}
@@ -116,13 +128,13 @@ bw=load.bigWig('../inst/extdata/bp.bigWig')
 ```{r eval=TRUE, echo=FALSE}
 bw=load.bigWig('../inst/extdata/bp.bigWig')
 ```
-The all of the attributes of the object can be accessed using `atrributes` and each individual can be accessed using `$`
+All of the attributes of the object can be accessed using `attributes` and each individual can be accessed using `$`
 
 ```{r eval=TRUE}
 # list all attributes
 attributes(bw)
 
-#access individual attribute
+#access an individual attribute
 bw$basesCovered
 ```
 
@@ -143,7 +155,7 @@ unload.bigWig(bw)
 * arguments
   + `bw` is the pointer of the underlying `C` object created in `load.bigWig`
 
-Use `unload.bigWig(bw)` to destroy the C object and remove it from memory. This does not clear the `R` object. To do that use `rm()` or `remove()`
+Use `unload.bigWig(bw)` to destroy the C object and remove it from memory. Use `rm()` or `remove()` to clear the `R` object.
 
 
 ```{r eval=TRUE}
@@ -155,7 +167,6 @@ remove(bw)
 ls()
 ```
 
-
 ## query.bigWig
 
 
@@ -166,15 +177,17 @@ knitr::include_graphics("../figure/bigWigProbesBp.pdf")
 ```
 
 ```{r eval = FALSE}
-query.bigWig(bw, chrom, start, end, clip = TRUE)
+query.bigWig(bigWig, chrom, start, end, clip = TRUE)
 ```
-* arguments
-  + `bw` is the pointer of the underlying `C` object created in `load.bigWig`
+* __arguments__
+  + `bigWig` is the pointer of the underlying `C` object created in `load.bigWig`
   + `chrom` is a string representing the chromosome to which the query interval belongs
   + `start` is an integer value defining the start of the query interval
   + `end` is an integer value defining the end of the query interval
   + `clip` is a logical value; if TRUE bigWig regions are clipped to the query interval.
 
+* __value__
+  + returns a N by 3 matrix with columns (start, end, value) where N is the number of intervals contained in the _bigWig_ file that intersect with the query interval. Result coordinates are clipped to the query interval (unless clip == FALSE).
 
 \clearpage
 ### bigWig file structure {#struc}
@@ -609,9 +622,9 @@ Obviously,`sizes = bed[,3] - bed[,2]` is much faster, but the function can be de
 complicated as necessary.
 
 
-## bed and bed6 region
+## bed and bed6 region queries
 
-__bed.region__
+### bed.region
 ```{r eval=FALSE}
 bed.region.bpQuery.bigWig(bw, bed, strand = NA,
                           op = "sum", abs.value = FALSE,
@@ -648,7 +661,7 @@ bed.region.bpQuery.bigWig(bw.bp, bed6)
 bed.region.probeQuery.bigWig(bw.bp, bed6)
 ```
 
-__bed6.region__
+### bed6.region
 ```{r eval=FALSE}
 bed6.region.bpQuery.bigWig(bw.plus, bw.minus, bed6,
                  op = "sum", abs.value = FALSE, gap.value = 0, bwMap = NULL)
@@ -704,7 +717,7 @@ bed6.region.bpQuery.bigWig(bwPlus, bwMinus, bed6)
 bed6.region.probeQuery.bigWig(bwPlus, bwMinus, bed6)
 ```
 
-## Step through a region
+## Step queries
 
 The following functions operate over defined steps and is described by
 `step=` argument. In a given region [`start=1` and `end=10`] and a
@@ -767,7 +780,7 @@ attributes(step.bp.bw.probes)$step
 ```
 
 
-__bed.step__
+### bed.step
 
 The `bed.step` function operates like the `bed.region` function, but the intervals are specified in the _BED_ data.frame. 
 
@@ -821,7 +834,7 @@ bed.step.bpQuery.bigWig(bw.splitprobes, bed.step, step = 2,
 
 ```
 
-__bed6.step__
+### bed6.step
 
 
 The `bed6.step` function operates like the `bed6.region` function, but the intervals and `strand` information are specified in the _BED_ data.frame.  The `follow.strand` argument is introduced for the `bed6` step function. `follow.strand` reverses the direction of `-` strand output. This is commonly set to TRUE when the specific genomic feature in the _bed6_ file has inherent strandedness. It is useful to know how the counts relate to the orientation of the feature, such as a sequence motif or transcription start site.
